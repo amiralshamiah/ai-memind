@@ -5,9 +5,9 @@
 .memind-app {
   min-height: 100vh;
   background:
-    radial-gradient(circle at top left, rgba(0, 212, 255, 0.12), transparent 24%),
-    radial-gradient(circle at top right, rgba(140, 120, 255, 0.1), transparent 20%),
-    linear-gradient(180deg, var(--mm-bg-1) 0%, var(--mm-bg-0) 100%);
+    radial-gradient(circle at 10% 8%, rgba(0, 212, 255, 0.12), transparent 20%),
+    radial-gradient(circle at 88% 0%, rgba(140, 120, 255, 0.09), transparent 18%),
+    linear-gradient(180deg, #0b1020 0%, #070a12 100%);
   color: hsl(var(--foreground));
 }
 
@@ -22,7 +22,7 @@
   inset: 0;
   background-image: radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px);
   background-size: 24px 24px;
-  opacity: 0.08;
+  opacity: 0.06;
   pointer-events: none;
 }
 
@@ -34,33 +34,36 @@
 
 .memind-sidebar-link {
   border: 1px solid transparent;
-  transition: background-color 180ms ease, border-color 180ms ease, transform 180ms ease;
+  transition: background-color 180ms ease, border-color 180ms ease, transform 180ms ease, box-shadow 180ms ease;
 }
 
 .memind-sidebar-link:hover,
 .memind-sidebar-link.active {
   background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(0, 212, 255, 0.28);
+  border-color: rgba(0, 212, 255, 0.3);
+  box-shadow: 0 0 0 1px rgba(0, 212, 255, 0.12), 0 0 32px rgba(0, 212, 255, 0.08);
   transform: translateY(-1px);
 }
 
 .memind-topbar-blur {
-  background: rgba(7, 10, 18, 0.72);
+  background: rgba(7, 10, 18, 0.78);
   backdrop-filter: blur(18px);
 }
 
-.memind-pulse-ring {
-  animation: memindPulse 3.2s ease-in-out infinite;
+.memind-route-transition {
+  animation: memindFadeIn 240ms ease;
 }
 
-.memind-ai-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1rem;
+.memind-badge-live {
+  background: rgba(61, 220, 151, 0.14);
+  color: #9ff0c7;
+  border-color: rgba(61, 220, 151, 0.24);
 }
 
-.memind-chart-surface {
-  min-height: 280px;
+.memind-badge-mock {
+  background: rgba(255, 176, 32, 0.14);
+  color: #ffd27d;
+  border-color: rgba(255, 176, 32, 0.24);
 }
 
 .memind-scroll {
@@ -82,34 +85,173 @@
   border-radius: 999px;
 }
 
-.memind-route-transition {
-  animation: memindFadeIn 260ms ease;
+.brain-core-shell {
+  position: relative;
+  overflow: hidden;
 }
 
-.memind-mic-glow {
-  box-shadow: 0 0 0 1px rgba(0, 212, 255, 0.25), 0 0 48px rgba(0, 212, 255, 0.18);
+.brain-core-grid::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 36px 36px;
+  opacity: 0.18;
+  pointer-events: none;
 }
 
-.memind-badge-live {
-  background: rgba(61, 220, 151, 0.14);
-  color: #9ff0c7;
-  border-color: rgba(61, 220, 151, 0.24);
+.brain-core-visual {
+  position: relative;
+  min-height: 300px;
+  border-radius: 28px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 40%, rgba(88, 150, 255, 0.2), transparent 32%),
+    radial-gradient(circle at 62% 42%, rgba(196, 112, 255, 0.18), transparent 18%),
+    linear-gradient(160deg, rgba(0, 212, 255, 0.08), rgba(255, 255, 255, 0.02));
 }
 
-.memind-badge-mock {
-  background: rgba(255, 176, 32, 0.14);
-  color: #ffd27d;
-  border-color: rgba(255, 176, 32, 0.24);
+.brain-core-center {
+  position: absolute;
+  inset: 52px 80px 52px 80px;
+  border-radius: 46% 54% 48% 52% / 50% 48% 52% 50%;
+  border: 1px solid rgba(120, 170, 255, 0.34);
+  box-shadow:
+    inset 0 0 40px rgba(0, 212, 255, 0.06),
+    0 0 40px rgba(0, 212, 255, 0.14),
+    0 0 80px rgba(140, 120, 255, 0.12);
 }
 
-@keyframes memindPulse {
+.brain-core-outline,
+.brain-core-outline::before,
+.brain-core-outline::after {
+  position: absolute;
+  border-radius: 48% 52% 44% 56% / 54% 42% 58% 46%;
+  border: 1px solid rgba(131, 171, 255, 0.26);
+  content: "";
+}
+
+.brain-core-outline {
+  inset: 74px 110px 72px 110px;
+}
+
+.brain-core-outline::before {
+  inset: 20px;
+}
+
+.brain-core-outline::after {
+  inset: -18px 30px 8px 30px;
+}
+
+.brain-core-node {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  background: radial-gradient(circle, #f2f5ff 0%, #7e92ff 42%, rgba(126, 146, 255, 0) 75%);
+  box-shadow: 0 0 22px rgba(118, 152, 255, 0.72), 0 0 44px rgba(196, 112, 255, 0.36);
+  animation: nodePulse 2.6s ease-in-out infinite;
+}
+
+.brain-core-link {
+  position: absolute;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(0, 212, 255, 0.04), rgba(122, 152, 255, 0.88), rgba(196, 112, 255, 0.16));
+  box-shadow: 0 0 20px rgba(122, 152, 255, 0.28);
+  transform-origin: left center;
+}
+
+.brain-core-sparkline {
+  height: 44px;
+  background:
+    linear-gradient(90deg, transparent 0%, rgba(0, 212, 255, 0.22) 18%, transparent 34%, rgba(140, 120, 255, 0.2) 48%, transparent 62%, rgba(0, 212, 255, 0.18) 78%, transparent 100%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0));
+  clip-path: polygon(0 74%, 8% 68%, 16% 82%, 24% 58%, 32% 64%, 40% 38%, 48% 56%, 56% 30%, 64% 46%, 72% 26%, 80% 50%, 88% 44%, 100% 58%, 100% 100%, 0 100%);
+  opacity: 0.96;
+}
+
+.patient-orb {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  min-height: 320px;
+  border-radius: 36px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(255, 176, 32, 0.18), transparent 18%),
+    radial-gradient(circle at 58% 48%, rgba(255, 140, 122, 0.22), transparent 24%),
+    linear-gradient(180deg, rgba(255, 176, 32, 0.08), rgba(255, 255, 255, 0));
+}
+
+.patient-orb::before,
+.patient-orb::after {
+  content: "";
+  position: absolute;
+  border-radius: 999px;
+}
+
+.patient-orb::before {
+  width: 240px;
+  height: 240px;
+  border: 2px solid rgba(104, 213, 255, 0.78);
+  box-shadow: 0 0 36px rgba(104, 213, 255, 0.3), inset 0 0 18px rgba(104, 213, 255, 0.24);
+}
+
+.patient-orb::after {
+  width: 286px;
+  height: 286px;
+  border: 1px solid rgba(255, 176, 32, 0.26);
+  box-shadow: 0 0 70px rgba(255, 176, 32, 0.16), 0 0 110px rgba(255, 140, 122, 0.12);
+  animation: warmHalo 5s ease-in-out infinite;
+}
+
+.patient-orb-core {
+  width: 180px;
+  height: 180px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(circle, rgba(255, 255, 255, 0.12) 0%, rgba(0, 212, 255, 0.2) 52%, rgba(255, 176, 32, 0.04) 100%);
+  box-shadow: inset 0 0 26px rgba(255, 255, 255, 0.06), 0 0 40px rgba(0, 212, 255, 0.24);
+  backdrop-filter: blur(12px);
+}
+
+.memind-warm-surface {
+  background:
+    radial-gradient(circle at top left, rgba(255, 176, 32, 0.18), transparent 28%),
+    radial-gradient(circle at top right, rgba(255, 140, 122, 0.12), transparent 22%),
+    rgba(255, 255, 255, 0.06);
+}
+
+.memind-risk-tile {
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
+}
+
+@keyframes nodePulse {
   0%,
   100% {
-    transform: scale(1);
+    transform: scale(0.9);
+    opacity: 0.75;
+  }
+  50% {
+    transform: scale(1.16);
+    opacity: 1;
+  }
+}
+
+@keyframes warmHalo {
+  0%,
+  100% {
+    transform: scale(0.98);
     opacity: 0.9;
   }
   50% {
-    transform: scale(1.035);
+    transform: scale(1.04);
     opacity: 1;
   }
 }

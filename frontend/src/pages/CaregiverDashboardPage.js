@@ -8,9 +8,12 @@ import {
   Clock3,
   HeartPulse,
   MapPinned,
+  MoonStar,
   Network,
   Pill,
   ShieldAlert,
+  ShieldPlus,
+  UserRound,
   Users,
 } from "lucide-react";
 import {
@@ -20,8 +23,6 @@ import {
   BarChart,
   CartesianGrid,
   Cell,
-  Line,
-  LineChart,
   PolarAngleAxis,
   PolarGrid,
   Radar,
@@ -36,7 +37,7 @@ import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
 import { toast } from "../components/ui/sonner";
 import { AppShell } from "../components/memind/AppShell";
-import { AiStatusRing, EthicsConsentBanner, GlassPanel, MetricTile } from "../components/memind/Primitives";
+import { AiStatusRing, BrainCorePanel, EthicsConsentBanner, GlassPanel, RiskCard } from "../components/memind/Primitives";
 import { fetchDashboardBundle, generateAiTask, updateConsent, updateMedication } from "../lib/api";
 import { useI18n } from "../lib/i18n";
 
@@ -82,27 +83,6 @@ export default function CaregiverDashboardPage({ patients, selectedPatientId, se
   }, [selectedPatientId]);
 
   const patient = bundle?.patient;
-  const timelineFilters = [
-    { key: "all", label: t("common.all") },
-    { key: "medication", label: t("caregiver.timelineFilters.medication") },
-    { key: "mood", label: t("caregiver.timelineFilters.mood") },
-    { key: "memory", label: t("caregiver.timelineFilters.memory") },
-    { key: "safety", label: t("caregiver.timelineFilters.safety") },
-    { key: "family", label: t("caregiver.timelineFilters.family") },
-    { key: "ai_intervention", label: t("caregiver.timelineFilters.ai") },
-  ];
-
-  const riskChartData = useMemo(
-    () =>
-      patient
-        ? Object.entries(patient.riskScores || {}).map(([key, value]) => ({
-            subject: key,
-            value,
-          }))
-        : [],
-    [patient]
-  );
-
   const trendData = useMemo(
     () =>
       (bundle?.riskScores || []).map((entry) => ({
@@ -114,6 +94,40 @@ export default function CaregiverDashboardPage({ patients, selectedPatientId, se
     [bundle, formatDateTime]
   );
 
+  const riskChartData = useMemo(
+    () =>
+      patient
+        ? [
+            { subject: "Confusion", value: patient.riskScores?.confusion || 0 },
+            { subject: "Wandering", value: patient.riskScores?.wandering || 0 },
+            { subject: "Fall", value: patient.riskScores?.fall || 0 },
+            { subject: "Medication", value: patient.riskScores?.medication || 0 },
+            { subject: "Hydration", value: patient.riskScores?.dehydration || 0 },
+            { subject: "Isolation", value: patient.riskScores?.isolation || 0 },
+          ]
+        : [],
+    [patient]
+  );
+
+  const emotionalSuccess = [
+    { label: "Voice", value: 82 },
+    { label: "Photos", value: 64 },
+    { label: "Music", value: 58 },
+    { label: "Calm AI", value: 52 },
+    { label: "Guidance", value: 44 },
+    { label: "Correction", value: 12 },
+  ];
+
+  const timelineFilters = [
+    { key: "all", label: t("common.all") },
+    { key: "medication", label: t("caregiver.timelineFilters.medication") },
+    { key: "mood", label: t("caregiver.timelineFilters.mood") },
+    { key: "memory", label: t("caregiver.timelineFilters.memory") },
+    { key: "safety", label: t("caregiver.timelineFilters.safety") },
+    { key: "family", label: t("caregiver.timelineFilters.family") },
+    { key: "ai_intervention", label: t("caregiver.timelineFilters.ai") },
+  ];
+
   const filteredEvents = useMemo(() => {
     if (!bundle?.events) return [];
     if (filter === "all") return bundle.events;
@@ -121,13 +135,13 @@ export default function CaregiverDashboardPage({ patients, selectedPatientId, se
     return bundle.events.filter((event) => event.type === filter);
   }, [bundle, filter]);
 
-  const emotionalSuccess = [
-    { label: "Sarah voice", value: 82 },
-    { label: "Family photos", value: 64 },
-    { label: "Old music", value: 58 },
-    { label: "Calm AI dialogue", value: 52 },
-    { label: "Step guidance", value: 44 },
-    { label: "Direct correction", value: 12 },
+  const brainMetrics = [
+    { label: "Brain status", value: localizeText(patient?.currentState) },
+    { label: "Orientation", value: `${patient?.domainScores?.orientation || 0}%` },
+    { label: "Memory", value: `${patient?.domainScores?.memoryRecall || 0}%` },
+    { label: "Emotional load", value: patient?.riskScores?.confusion > 30 ? "Moderate" : "Low" },
+    { label: "Attention", value: `${patient?.domainScores?.socialResponse || 0}%` },
+    { label: "AI confidence", value: `${patient?.aiConfidence || 0}%` },
   ];
 
   const generateDailySummary = async () => {
@@ -152,19 +166,13 @@ export default function CaregiverDashboardPage({ patients, selectedPatientId, se
 
   const markMedicationTaken = async (medicationId) => {
     const updated = await updateMedication(medicationId, { adherenceStatus: language === "de" ? "Eingenommen" : "Taken", actorRole: "caregiver" });
-    setBundle((prev) => ({
-      ...prev,
-      medications: prev.medications.map((item) => (item.id === medicationId ? updated : item)),
-    }));
+    setBundle((prev) => ({ ...prev, medications: prev.medications.map((item) => (item.id === medicationId ? updated : item)) }));
     toast.success(t("common.done"));
   };
 
   const toggleConsent = async (consentId, status) => {
     const updated = await updateConsent(consentId, { status, actorRole: "caregiver" });
-    setBundle((prev) => ({
-      ...prev,
-      consents: prev.consents.map((item) => (item.id === consentId ? updated : item)),
-    }));
+    setBundle((prev) => ({ ...prev, consents: prev.consents.map((item) => (item.id === consentId ? updated : item)) }));
     toast.success(t("common.save"));
   };
 
@@ -185,27 +193,31 @@ export default function CaregiverDashboardPage({ patients, selectedPatientId, se
   );
 
   const renderOverview = () => (
-    <div className="space-y-6">
-      <div className="grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
-        <GlassPanel className="p-6" dataTestid="caregiver-identity-card">
-          <p className="text-xs uppercase tracking-[0.24em] text-white/45">{t("caregiver.identity")}</p>
-          <div className="mt-4 grid gap-4 md:grid-cols-2">
-            <div className="space-y-3">
-              <h2 className="font-display text-3xl text-white">{patient?.name}</h2>
-              <p className="text-sm text-white/58">{localizeText(patient?.diagnosis)} · {localizeText(patient?.stage)}</p>
-              <p className="text-sm text-white/58">{localizeText(patient?.location)} · {localizeText(patient?.status)}</p>
+    <div className="space-y-4">
+      <div className="grid gap-4 xl:grid-cols-[320px_220px_1fr]">
+        <GlassPanel className="space-y-5" dataTestid="caregiver-identity-card" variant="strong">
+          <div className="flex items-center gap-4">
+            <img alt={patient?.name} className="h-24 w-24 rounded-[26px] object-cover" src={patient?.avatar} />
+            <div className="space-y-2">
+              <p className="font-display text-3xl text-white">{patient?.name}</p>
+              <p className="text-sm text-white/58">{patient?.age} · {localizeText(patient?.diagnosis)}</p>
+              <p className="text-sm text-white/58">{localizeText(patient?.stage)} · {localizeText(patient?.location)}</p>
+              <Badge className="rounded-full border border-emerald-300/22 bg-emerald-400/10 px-3 py-1 text-emerald-200">{localizeText(patient?.status)}</Badge>
             </div>
-            <div className="space-y-2 rounded-[24px] border border-white/10 bg-white/[0.04] p-4">
-              <p className="text-sm text-white/58">{bundle?.caregiver?.name}</p>
+          </div>
+          <div className="grid gap-3">
+            <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+              <p className="text-[11px] uppercase tracking-[0.24em] text-white/40">Care team</p>
+              <p className="mt-2 text-white">{bundle?.caregiver?.name}</p>
               <p className="text-sm text-white/58">{bundle?.doctor?.name}</p>
-              <p className="font-mono-display text-lg text-white">{patient?.lastInteraction}</p>
             </div>
           </div>
         </GlassPanel>
+
         <AiStatusRing
           dataTestid="caregiver-live-monitor-status-ring"
           label="Cognitive Stability"
-          score={`${patient?.cognitiveScore || 0}/100`}
+          score={`${patient?.cognitiveScore || 0}`}
           status={localizeText(patient?.currentState)}
           subScores={[
             { label: "Mood", value: `${patient?.domainScores?.moodStability || 0}%` },
@@ -214,39 +226,45 @@ export default function CaregiverDashboardPage({ patients, selectedPatientId, se
             { label: "Safety", value: `${patient?.domainScores?.safety || 0}%` },
           ]}
         />
+
+        <BrainCorePanel dataTestid="caregiver-brain-core-panel" metrics={brainMetrics} state={localizeText(patient?.currentState)} title="Memind Brain Core" variant="caregiver" />
       </div>
 
-      <div className="memind-ai-grid">
-        <MetricTile dataTestid="caregiver-metric-mood" detail={localizeText(patient?.mood)} label="Mood" value={localizeText(patient?.mood)} />
-        <MetricTile dataTestid="caregiver-metric-confusion" detail="Today" label="Confusion" value={`${patient?.riskScores?.confusion}%`} />
-        <MetricTile dataTestid="caregiver-metric-wandering" detail="Risk radar" label="Wandering" value={`${patient?.riskScores?.wandering}%`} />
-        <MetricTile dataTestid="caregiver-metric-medication" detail="This week" label="Medication" value={`${patient?.medicationAdherence}%`} />
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-6">
+        <RiskCard dataTestid="caregiver-risk-confusion" icon={BrainCircuit} label="Confusion" sublabel="Current" tone="violet" value={`${patient?.riskScores?.confusion || 0}%`} />
+        <RiskCard dataTestid="caregiver-risk-wandering" icon={MapPinned} label="Wandering" sublabel="Risk" tone="amber" value={`${patient?.riskScores?.wandering || 0}%`} />
+        <RiskCard dataTestid="caregiver-risk-fall" icon={ShieldPlus} label="Fall" sublabel="Risk" tone="mint" value={`${patient?.riskScores?.fall || 0}%`} />
+        <RiskCard dataTestid="caregiver-risk-medication" icon={Pill} label="Medication" sublabel="Adherence" tone="cyan" value={`${patient?.medicationAdherence || 0}%`} />
+        <RiskCard dataTestid="caregiver-risk-sleep" icon={MoonStar} label="Sleep" sublabel="Quality" tone="violet" value={`${patient?.sleepQuality || 0}%`} />
+        <RiskCard dataTestid="caregiver-risk-last-interaction" icon={UserRound} label="Last interaction" sublabel="Family signal" tone="cyan" value={patient?.lastInteraction || "—"} />
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-[1fr_1fr]">
-        <GlassPanel className="space-y-4" dataTestid="caregiver-timeline-preview">
+      <div className="grid gap-4 xl:grid-cols-[1.15fr_0.95fr_0.8fr]">
+        <GlassPanel className="space-y-4" dataTestid="caregiver-timeline-preview" variant="strong">
           <div className="flex items-center justify-between gap-3">
             <p className="font-display text-2xl text-white">{t("common.timeline")}</p>
             <Button asChild className="bg-white/10 text-white hover:bg-white/14"><Link data-testid="caregiver-timeline-link" to="/caregiver/timeline">{t("common.view")}</Link></Button>
           </div>
-          {bundle?.events?.slice(0, 5).map((event) => (
-            <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4" key={event.id}>
-              <div className="flex items-center justify-between gap-3">
-                <p className="text-sm text-white">{localizeText(event.title)}</p>
-                <span className="font-mono-display text-xs text-white/42">{formatDateTime(event.timestamp, { hour: "2-digit", minute: "2-digit" })}</span>
+          {(bundle?.events || []).slice(0, 8).map((event) => (
+            <div className="flex items-start gap-4 rounded-2xl border border-white/10 bg-white/[0.04] p-3" key={event.id}>
+              <span className="mt-1 h-2.5 w-2.5 rounded-full bg-cyan-300" />
+              <div className="flex-1">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-sm text-white">{localizeText(event.title)}</p>
+                  <span className="font-mono-display text-xs text-white/42">{formatDateTime(event.timestamp, { hour: "2-digit", minute: "2-digit" })}</span>
+                </div>
               </div>
-              <p className="mt-2 text-sm leading-6 text-white/58">{localizeText(event.aiInterpretation)}</p>
             </div>
           ))}
         </GlassPanel>
 
-        <GlassPanel className="space-y-4" dataTestid="caregiver-recommendations-preview">
+        <GlassPanel className="space-y-4" dataTestid="caregiver-recommendations-preview" variant="strong">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <p className="font-display text-2xl text-white">{t("caregiver.recommendationsPreview")}</p>
+              <p className="font-display text-2xl text-white">{t("common.recommendations")}</p>
               <p className="mt-2 text-sm text-white/58">{t("caregiver.calmingInsight")}</p>
             </div>
-            <Button className="bg-cyan-300 text-slate-950 hover:bg-cyan-200" data-testid="caregiver-generate-recommendations-button" onClick={generateRecommendations} type="button">{t("caregiver.generateRecommendations")}</Button>
+            <Button className="bg-cyan-300 text-slate-950 hover:bg-cyan-200" data-testid="caregiver-generate-recommendations-button" onClick={generateRecommendations} type="button">{t("common.refresh")}</Button>
           </div>
           {(recommendationResponse?.output?.recommendations || []).slice(0, 3).map((item, index) => (
             <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4" key={`${item.reason}-${index}`}>
@@ -258,50 +276,33 @@ export default function CaregiverDashboardPage({ patients, selectedPatientId, se
               <p className="mt-2 text-sm leading-6 text-white/58">{item.suggested_action}</p>
             </div>
           ))}
-          {!recommendationResponse ? <div className="rounded-2xl border border-dashed border-white/12 bg-white/[0.03] p-6 text-sm text-white/58">{t("caregiver.generateRecommendations")}</div> : null}
         </GlassPanel>
-      </div>
 
-      <div className="grid gap-4 xl:grid-cols-[1fr_1fr]">
-        <GlassPanel className="space-y-4" dataTestid="caregiver-daily-summary-panel">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <p className="font-display text-2xl text-white">{t("patient.summaryTitle")}</p>
-              <p className="mt-2 text-sm text-white/58">{dailySummary?.createdAt ? `${t("common.lastUpdated")}: ${formatDateTime(dailySummary.createdAt, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}` : ""}</p>
-            </div>
-            <Button className="bg-cyan-300 text-slate-950 hover:bg-cyan-200" data-testid="caregiver-generate-summary-button" onClick={generateDailySummary} type="button">{t("caregiver.generateSummary")}</Button>
-          </div>
-          <p className="text-sm leading-7 text-white/68">{localizeText(dailySummary?.summary) || localizeText(bundle?.reports?.[0]?.summary)}</p>
-          <div className="space-y-2">
-            {(dailySummary?.key_points || []).map((point) => (
-              <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white/72" key={point}>{point}</div>
-            ))}
-          </div>
+        <GlassPanel className="space-y-4" dataTestid="caregiver-risk-radar-panel" variant="strong">
+          <p className="font-display text-2xl text-white">Risk radar</p>
+          <ResponsiveContainer height={260} width="100%">
+            <RadarChart data={riskChartData}>
+              <PolarGrid stroke="rgba(255,255,255,0.08)" />
+              <PolarAngleAxis dataKey="subject" tick={{ fill: "rgba(255,255,255,0.55)", fontSize: 11 }} />
+              <Radar dataKey="value" fill="rgba(140,120,255,0.3)" fillOpacity={0.6} stroke="#8C78FF" />
+            </RadarChart>
+          </ResponsiveContainer>
         </GlassPanel>
-        <EthicsConsentBanner compact dataTestid="caregiver-ethics-banner" />
       </div>
     </div>
   );
 
   const renderTimeline = () => (
     <div className="space-y-4">
-      <GlassPanel className="space-y-4" dataTestid="caregiver-timeline-filters-panel">
+      <GlassPanel className="space-y-4" dataTestid="caregiver-timeline-filters-panel" variant="strong">
         <div className="flex flex-wrap gap-2">
           {timelineFilters.map((option) => (
-            <button
-              className={`rounded-full border px-4 py-2 text-sm transition-colors duration-200 ${filter === option.key ? "border-cyan-300/30 bg-cyan-300/12 text-cyan-100" : "border-white/10 bg-white/[0.04] text-white/62 hover:bg-white/[0.08] hover:text-white"}`}
-              data-testid={`caregiver-timeline-filter-${option.key}`}
-              key={option.key}
-              onClick={() => setFilter(option.key)}
-              type="button"
-            >
-              {option.label}
-            </button>
+            <button className={`rounded-full border px-4 py-2 text-sm transition-colors duration-200 ${filter === option.key ? "border-cyan-300/30 bg-cyan-300/12 text-cyan-100" : "border-white/10 bg-white/[0.04] text-white/62 hover:bg-white/[0.08] hover:text-white"}`} data-testid={`caregiver-timeline-filter-${option.key}`} key={option.key} onClick={() => setFilter(option.key)} type="button">{option.label}</button>
           ))}
         </div>
       </GlassPanel>
       {filteredEvents.map((event) => (
-        <GlassPanel className="space-y-3" dataTestid={`caregiver-event-${event.id}`} key={event.id}>
+        <GlassPanel className="space-y-3" dataTestid={`caregiver-event-${event.id}`} key={event.id} variant="strong">
           <div className="flex items-center justify-between gap-3">
             <div>
               <p className="font-display text-xl text-white">{localizeText(event.title)}</p>
@@ -319,10 +320,9 @@ export default function CaregiverDashboardPage({ patients, selectedPatientId, se
   );
 
   const renderMemoryGraph = () => (
-    <div className="grid gap-4 xl:grid-cols-[0.85fr_1.15fr]">
-      <GlassPanel className="space-y-4" dataTestid="caregiver-memory-graph-card-list">
+    <div className="grid gap-4 xl:grid-cols-[0.9fr_1.1fr]">
+      <GlassPanel className="space-y-4" dataTestid="caregiver-memory-graph-card-list" variant="strong">
         <p className="font-display text-2xl text-white">{t("common.memoryGraph")}</p>
-        <p className="text-sm leading-6 text-white/58">{t("caregiver.memoryGraphSubtitle")}</p>
         {bundle?.people?.slice(0, 5).map((person, index) => (
           <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4" key={person.id}>
             <p className="text-sm text-white">{person.name}</p>
@@ -334,24 +334,14 @@ export default function CaregiverDashboardPage({ patients, selectedPatientId, se
           </div>
         ))}
       </GlassPanel>
-      <GlassPanel className="space-y-4" dataTestid="caregiver-memory-graph-visual">
-        <div className="grid gap-4 md:grid-cols-2">
-          {bundle?.memories?.map((memory) => (
-            <div className="rounded-[24px] border border-white/10 bg-[linear-gradient(135deg,rgba(0,212,255,0.10),rgba(255,255,255,0.02))] p-4" key={memory.id}>
-              <p className="font-display text-lg text-white">{localizeText(memory.title)}</p>
-              <p className="mt-2 text-sm text-white/58">{localizeText(memory.emotionalImpact)}</p>
-              <p className="mt-4 text-xs uppercase tracking-[0.24em] text-cyan-100/62">{memory.tags.join(" • ")}</p>
-            </div>
-          ))}
-        </div>
-      </GlassPanel>
+      <BrainCorePanel dataTestid="caregiver-memory-graph-brain" metrics={brainMetrics.slice(0, 4)} state={localizeText(patient?.currentState)} title="Relational Brain Core" variant="caregiver" />
     </div>
   );
 
   const renderRelationships = () => (
     <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
       {bundle?.people?.map((person) => (
-        <GlassPanel className="space-y-4" dataTestid={`caregiver-relationship-${person.id}`} key={person.id}>
+        <GlassPanel className="space-y-4" dataTestid={`caregiver-relationship-${person.id}`} key={person.id} variant="strong">
           <div className="flex items-center gap-4">
             <img alt={person.name} className="h-16 w-16 rounded-2xl object-cover" src={person.photo} />
             <div>
@@ -372,7 +362,7 @@ export default function CaregiverDashboardPage({ patients, selectedPatientId, se
   const renderMemoriesLibrary = () => (
     <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
       {bundle?.memories?.map((memory) => (
-        <GlassPanel className="overflow-hidden p-0" dataTestid={`caregiver-memory-library-${memory.id}`} key={memory.id}>
+        <GlassPanel className="overflow-hidden p-0" dataTestid={`caregiver-memory-library-${memory.id}`} key={memory.id} variant="strong">
           <img alt={localizeText(memory.title)} className="h-48 w-full object-cover" src={memory.mediaUrl} />
           <div className="space-y-3 p-5">
             <div className="flex items-center justify-between gap-3">
@@ -389,7 +379,7 @@ export default function CaregiverDashboardPage({ patients, selectedPatientId, se
 
   const renderAnalytics = () => (
     <div className="grid gap-4 xl:grid-cols-[1fr_1fr]">
-      <GlassPanel className="memind-chart-surface p-5" dataTestid="caregiver-emotional-analytics-chart">
+      <GlassPanel className="p-5" dataTestid="caregiver-emotional-analytics-chart" variant="strong">
         <p className="font-display text-2xl text-white">{t("common.analytics")}</p>
         <ResponsiveContainer height={280} width="100%">
           <BarChart data={emotionalSuccess}>
@@ -398,31 +388,19 @@ export default function CaregiverDashboardPage({ patients, selectedPatientId, se
             <YAxis stroke="rgba(255,255,255,0.5)" tick={{ fill: "rgba(255,255,255,0.55)", fontSize: 12 }} />
             <Tooltip />
             <Bar dataKey="value" radius={[10, 10, 0, 0]}>
-              {emotionalSuccess.map((entry, index) => (
-                <Cell fill={riskPalette[index % riskPalette.length]} key={entry.label} />
-              ))}
+              {emotionalSuccess.map((entry, index) => <Cell fill={riskPalette[index % riskPalette.length]} key={entry.label} />)}
             </Bar>
           </BarChart>
         </ResponsiveContainer>
       </GlassPanel>
-      <GlassPanel className="space-y-4 p-5" dataTestid="caregiver-risk-radar-chart">
-        <p className="font-display text-2xl text-white">Risk radar</p>
-        <ResponsiveContainer height={280} width="100%">
-          <RadarChart data={riskChartData}>
-            <PolarGrid stroke="rgba(255,255,255,0.08)" />
-            <PolarAngleAxis dataKey="subject" tick={{ fill: "rgba(255,255,255,0.55)", fontSize: 12 }} />
-            <Radar dataKey="value" fill="rgba(0,212,255,0.3)" fillOpacity={0.6} stroke="#00D4FF" />
-          </RadarChart>
-        </ResponsiveContainer>
-        <p className="text-sm leading-6 text-white/58">{t("caregiver.calmingInsight")}</p>
-      </GlassPanel>
+      <BrainCorePanel dataTestid="caregiver-analytics-brain-core" metrics={brainMetrics} state={localizeText(patient?.currentState)} title="Emotional Brain Core" variant="caregiver" />
     </div>
   );
 
   const renderEpisodes = () => (
     <div className="space-y-4">
       {bundle?.episodes?.map((episode) => (
-        <GlassPanel className="space-y-4" dataTestid={`caregiver-episode-${episode.id}`} key={episode.id}>
+        <GlassPanel className="space-y-4" dataTestid={`caregiver-episode-${episode.id}`} key={episode.id} variant="strong">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <p className="font-display text-2xl text-white">{localizeText(episode.type)}</p>
@@ -444,20 +422,16 @@ export default function CaregiverDashboardPage({ patients, selectedPatientId, se
   );
 
   const renderSafety = () => (
-    <div className="grid gap-4 xl:grid-cols-[0.9fr_1.1fr]">
-      <GlassPanel className="space-y-4" dataTestid="caregiver-safety-map-panel">
+    <div className="grid gap-4 xl:grid-cols-[0.95fr_1.05fr]">
+      <GlassPanel className="space-y-4" dataTestid="caregiver-safety-map-panel" variant="strong">
         <div className="rounded-[24px] border border-dashed border-cyan-300/26 bg-[linear-gradient(160deg,rgba(0,212,255,0.10),rgba(255,255,255,0.02))] p-6 text-white/62">
           <MapPinned className="h-8 w-8 text-cyan-200" />
           <p className="mt-4 font-display text-2xl text-white">{localizeText(patient?.location)}</p>
           <p className="mt-3 text-sm leading-6">Safe zones active · Door sensors online · Live location sharing available</p>
         </div>
-        <div className="space-y-2 text-sm text-white/58">
-          {bundle?.alerts?.map((alert) => (
-            <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3" key={alert.id}>{localizeText(alert.title)}</div>
-          ))}
-        </div>
+        <div className="space-y-2 text-sm text-white/58">{bundle?.alerts?.map((alert) => <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3" key={alert.id}>{localizeText(alert.title)}</div>)}</div>
       </GlassPanel>
-      <GlassPanel className="memind-chart-surface p-5" dataTestid="caregiver-safety-trend-chart">
+      <GlassPanel className="p-5" dataTestid="caregiver-safety-trend-chart" variant="strong">
         <p className="font-display text-2xl text-white">Safety trajectory</p>
         <ResponsiveContainer height={280} width="100%">
           <AreaChart data={trendData}>
@@ -472,7 +446,7 @@ export default function CaregiverDashboardPage({ patients, selectedPatientId, se
             <YAxis stroke="rgba(255,255,255,0.5)" tick={{ fill: "rgba(255,255,255,0.55)", fontSize: 12 }} />
             <Tooltip />
             <Area dataKey="wandering" fill="url(#safetyGradient)" stroke="#00D4FF" type="monotone" />
-            <Line dataKey="confusion" dot={false} stroke="#FFB020" type="monotone" />
+            <Area dataKey="confusion" fill="rgba(255,176,32,0.08)" stroke="#FFB020" type="monotone" />
           </AreaChart>
         </ResponsiveContainer>
       </GlassPanel>
@@ -481,7 +455,7 @@ export default function CaregiverDashboardPage({ patients, selectedPatientId, se
 
   const renderMedication = () => (
     <div className="grid gap-4 xl:grid-cols-[0.95fr_1.05fr]">
-      <GlassPanel className="space-y-4" dataTestid="caregiver-medication-list">
+      <GlassPanel className="space-y-4" dataTestid="caregiver-medication-list" variant="strong">
         {bundle?.medications?.map((medication) => (
           <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4" key={medication.id}>
             <div className="flex items-center justify-between gap-3">
@@ -495,7 +469,7 @@ export default function CaregiverDashboardPage({ patients, selectedPatientId, se
           </div>
         ))}
       </GlassPanel>
-      <GlassPanel className="memind-chart-surface p-5" dataTestid="caregiver-medication-adherence-chart">
+      <GlassPanel className="p-5" dataTestid="caregiver-medication-adherence-chart" variant="strong">
         <p className="font-display text-2xl text-white">Medication adherence</p>
         <ResponsiveContainer height={280} width="100%">
           <BarChart data={bundle?.medications?.map((medication) => ({ name: medication.name, adherence: medication.missedCount === 0 ? 94 : 88 })) || []}>
@@ -512,7 +486,7 @@ export default function CaregiverDashboardPage({ patients, selectedPatientId, se
 
   const renderRecommendations = () => (
     <div className="space-y-4">
-      <GlassPanel className="flex items-center justify-between gap-3" dataTestid="caregiver-recommendations-toolbar">
+      <GlassPanel className="flex items-center justify-between gap-3" dataTestid="caregiver-recommendations-toolbar" variant="strong">
         <div>
           <p className="font-display text-2xl text-white">{t("common.recommendations")}</p>
           <p className="text-sm text-white/58">{t("caregiver.calmingInsight")}</p>
@@ -520,7 +494,7 @@ export default function CaregiverDashboardPage({ patients, selectedPatientId, se
         <Button className="bg-cyan-300 text-slate-950 hover:bg-cyan-200" data-testid="caregiver-refresh-recommendations-button" onClick={generateRecommendations} type="button">{t("common.refresh")}</Button>
       </GlassPanel>
       {(recommendationResponse?.output?.recommendations || []).map((item, index) => (
-        <GlassPanel className="space-y-3" dataTestid={`caregiver-recommendation-${index}`} key={`${item.reason}-${index}`}>
+        <GlassPanel className="space-y-3" dataTestid={`caregiver-recommendation-${index}`} key={`${item.reason}-${index}`} variant="strong">
           <div className="flex items-center justify-between gap-3">
             <Badge className="rounded-full border border-white/10 bg-white/6 px-3 py-1 text-white/72">{item.priority}</Badge>
             <span className="font-mono-display text-xs text-white/42">{item.confidence}% {t("common.confidence")}</span>
@@ -534,8 +508,15 @@ export default function CaregiverDashboardPage({ patients, selectedPatientId, se
 
   const renderReports = () => (
     <div className="space-y-4">
+      <GlassPanel className="flex items-center justify-between gap-3" dataTestid="caregiver-report-toolbar" variant="strong">
+        <div>
+          <p className="font-display text-2xl text-white">{t("common.reports")}</p>
+          <p className="text-sm text-white/58">{t("caregiver.reportPreview")}</p>
+        </div>
+        <Button className="bg-cyan-300 text-slate-950 hover:bg-cyan-200" data-testid="caregiver-generate-summary-button" onClick={generateDailySummary} type="button">{t("caregiver.generateSummary")}</Button>
+      </GlassPanel>
       {bundle?.reports?.map((report, index) => (
-        <GlassPanel className="space-y-3" dataTestid={`caregiver-report-${index}`} key={report.id || `${report.period}-${index}`}>
+        <GlassPanel className="space-y-3" dataTestid={`caregiver-report-${index}`} key={report.id || `${report.period}-${index}`} variant="strong">
           <div className="flex items-center justify-between gap-3">
             <div>
               <p className="font-display text-2xl text-white">{localizeText(report.title) || report.title}</p>
@@ -553,22 +534,14 @@ export default function CaregiverDashboardPage({ patients, selectedPatientId, se
     <div className="space-y-4">
       <EthicsConsentBanner dataTestid="caregiver-consent-ethics-banner" />
       {bundle?.consents?.map((consent) => (
-        <GlassPanel className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between" dataTestid={`caregiver-consent-${consent.id}`} key={consent.id}>
+        <GlassPanel className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between" dataTestid={`caregiver-consent-${consent.id}`} key={consent.id} variant="strong">
           <div>
             <p className="font-display text-xl text-white">{localizeText(consent.category)}</p>
             <p className="mt-2 text-sm text-white/58">{localizeText(consent.grantedTo)}</p>
           </div>
           <div className="flex flex-wrap gap-2">
             {["granted", "pending", "requires_review"].map((status) => (
-              <button
-                className={`rounded-full border px-4 py-2 text-sm transition-colors duration-200 ${consent.status === status ? "border-cyan-300/30 bg-cyan-300/12 text-cyan-100" : "border-white/10 bg-white/[0.04] text-white/62 hover:bg-white/[0.08] hover:text-white"}`}
-                data-testid={`caregiver-consent-toggle-${consent.id}-${status}`}
-                key={status}
-                onClick={() => toggleConsent(consent.id, status)}
-                type="button"
-              >
-                {status}
-              </button>
+              <button className={`rounded-full border px-4 py-2 text-sm transition-colors duration-200 ${consent.status === status ? "border-cyan-300/30 bg-cyan-300/12 text-cyan-100" : "border-white/10 bg-white/[0.04] text-white/62 hover:bg-white/[0.08] hover:text-white"}`} data-testid={`caregiver-consent-toggle-${consent.id}-${status}`} key={status} onClick={() => toggleConsent(consent.id, status)} type="button">{status}</button>
             ))}
           </div>
         </GlassPanel>
@@ -591,9 +564,5 @@ export default function CaregiverDashboardPage({ patients, selectedPatientId, se
     consents: renderConsents(),
   };
 
-  return (
-    <AppShell role="caregiver" subtitle={t("roles.caregiver.subtitle")} title={t("roles.caregiver.title")} navItems={navItems} topRight={topRight}>
-      {loading ? <GlassPanel className="h-[460px] animate-pulse bg-white/[0.04]" dataTestid="caregiver-loading-state" /> : sectionView[section] || renderOverview()}
-    </AppShell>
-  );
+  return <AppShell role="caregiver" subtitle={t("roles.caregiver.subtitle")} title={t("roles.caregiver.title")} navItems={navItems} topRight={topRight}>{loading ? <GlassPanel className="h-[520px] animate-pulse bg-white/[0.04]" dataTestid="caregiver-loading-state" /> : sectionView[section] || renderOverview()}</AppShell>;
 }
