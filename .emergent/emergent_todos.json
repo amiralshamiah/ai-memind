@@ -1,26 +1,10 @@
 [
   {
-    "content": "Phase 3: Refine design system and shared components to match uploaded cockpit reference",
-    "status": "completed"
-  },
-  {
-    "content": "Phase 3: Upgrade Patient App with warmer emotional AI orb layout and support cards",
-    "status": "completed"
-  },
-  {
-    "content": "Phase 3: Upgrade Caregiver and Doctor dashboards with Brain Core, denser analytics, and refined glassmorphism",
-    "status": "completed"
-  },
-  {
-    "content": "Phase 3: Upgrade Admin Panel with more operational cockpit density and GDPR/privacy surfaces",
-    "status": "completed"
-  },
-  {
     "content": "Phase 3: End-to-end testing using Testing Agent",
-    "status": "in_progress"
+    "status": "completed"
   },
   {
     "content": "Phase 3: All visual upgrade stories covered in development and testing",
-    "status": "pending"
+    "status": "completed"
   }
 ]

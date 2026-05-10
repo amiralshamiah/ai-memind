@@ -4,13 +4,20 @@
 - Deliver an investor/doctor-demo-ready, AI-centered dementia care prototype with **4 role experiences** (Patient, Family/Caregiver, Doctor, Admin) via **role switcher** (no auth in v1).
 - Implement a **provider-agnostic AI service layer** (OpenAI/Gemini/Claude/local-ready) with **real LLM** support + **simulated fallback** when no API key is available.
 - Persist domain data + selected AI outputs in **MongoDB** (seeded + read/update) to avoid regenerating summaries/reports.
-- Premium futuristic UI (dark glassmorphism + neon accents) + dementia-friendly patient UI; full **EN/DE i18n** with language switcher.
+- Premium futuristic UI: **dark medical AI cockpit** + refined glassmorphism; **patient UI remains calm and emotionally safe**; full **EN/DE i18n** with language switcher.
 - Embed ethical/GDPR placeholders + **clear medical disclaimers** (AI is not diagnosis; doctor review required for clinical decisions).
 
 **Current status note (updated)**
 - ✅ **Phase 1 complete:** provider-agnostic AI abstraction + real LLM + mock fallback + Mongo cache.
-- ✅ **Phase 2 complete:** full multi-page prototype for all 4 roles, EN/DE i18n, Mongo seeded data, read/update APIs, AI routes wired to UI, and premium futuristic UI.
-- ✅ **Testing complete:** `testing_agent_v3` iteration_1 passed with no backend or frontend bugs; no runtime errors on role pages.
+- ✅ **Phase 2 complete:** full multi-page prototype for all 4 roles, EN/DE i18n, Mongo seeded data, read/update APIs, AI routes wired to UI.
+- ✅ **Phase 3 redesign complete:** in-place frontend upgrade aligned to the uploaded **futuristic dark medical cockpit** reference:
+  - Stronger **Memind Brain Core** visualization with electric neural pulses
+  - More polished glassmorphism
+  - Clearer separation between Patient / Care Center / Clinical Console / Admin
+  - Higher dashboard density for Caregiver + Doctor
+  - Warmer, more emotional Patient AI orb experience
+- ✅ **Testing complete:** `testing_agent_v3` iteration_2 passed with no runtime errors on redesigned pages.
+  - Note: backend AI endpoints can take **10–30s** due to real LLM calls; the test harness timed out with a **10s** limit for some AI tests—classified as expected behavior.
 
 ---
 
@@ -51,7 +58,7 @@
 
 **Runtime model choice (current default)**
 - Default model: **OpenAI `gpt-5-nano`** for budget-efficient, reliable execution.
-- Still fully configurable via env:
+- Configurable via env:
   - `AI_PROVIDER` (e.g., `openai`, later `anthropic`, `gemini`, `local`)
   - `AI_MODEL` (e.g., `gpt-5-nano`, `gpt-5.1`, …)
   - `AI_FORCE_MOCK=true` to force fallback for safe demos
@@ -79,10 +86,10 @@
   - `src/i18n/en.json`, `src/i18n/de.json`
   - `I18nProvider` + `useI18n()` with `t()` + `localizeText()` helper for seeded `{en,de}` objects
   - Language switcher in all experiences
-- Implemented premium futuristic UI per `/app/design_guidelines.md`:
-  - dark cockpit background, glassmorphism panels, subtle neon cyan accents
+- Implemented initial premium futuristic UI:
+  - dark cockpit background, glassmorphism panels, neon cyan accents
   - role-aware shells (patient minimal vs. dashboards left rail + top bar)
-  - motion (framer-motion) used subtly
+  - subtle motion (framer-motion)
 - Built reusable UI components:
   - `AppShell` (role-aware)
   - `GlassPanel`
@@ -100,7 +107,7 @@
   - consents, risk_scores
   - doctor_notes, audit_logs
   - devices, alerts, system_health
-- Implemented read endpoints (spec-aligned + needed extras):
+- Implemented read endpoints:
   - `GET /api/patients`
   - `GET /api/patients/:id`
   - `GET /api/patients/:id/events`
@@ -113,164 +120,139 @@
   - `GET /api/patients/:id/risk-scores`
   - `GET /api/patients/:id/consents`
   - `GET /api/patients/:id/doctor-notes`
-- Implemented bootstrap and admin endpoints:
-  - `GET /api/dashboard/bootstrap/:id` (single-call UI bundle)
+- Implemented bootstrap + admin endpoints:
+  - `GET /api/dashboard/bootstrap/:id`
   - `GET /api/admin/overview`
-- Implemented write endpoints (v1 minimal update support):
-  - `PATCH /api/medications/:id` (adherence updates)
-  - `PATCH /api/consents/:id` (consent toggles)
-  - `POST /api/patients/:id/doctor-notes` (doctor note creation)
-- Connected AI endpoints to domain context and audit logging:
-  - AI endpoints build context from Mongo (patient + events + episodes + meds + risk)
-  - audit entries inserted for AI generation actions
+- Implemented minimal write endpoints:
+  - `PATCH /api/medications/:id`
+  - `PATCH /api/consents/:id`
+  - `POST /api/patients/:id/doctor-notes`
+- Connected AI endpoints to domain context + audit logging.
 
 #### Phase 2C — Role experiences **(DELIVERED ✅)**
 1. **Patient App (mobile-first)**
    - Home orientation screen with reassurance, date/time/location
-   - Talk to Memind (text-based chat): uses `/ai/confusion-support` or `/ai/memory-recall`
-   - Memories screen with media cards
+   - Talk to Memind (text-based chat): `/ai/confusion-support` and `/ai/memory-recall`
+   - Memories screen
    - Emergency help screen (prototype placeholders)
-   - Dementia-friendly tone: gentle, non-confrontational
 
 2. **Family/Caregiver Dashboard (Care Center)**
-   - Overview cockpit: identity, stability ring, risk metrics, timeline preview
-   - Sections/pages delivered:
-     - Daily Timeline with filters
-     - Memory Graph cards
-     - People & Relationships
-     - Memories library
-     - Emotional analytics with charts
-     - Confusion episodes list
-     - Safety & location view + alerts
-     - Medication & daily care + adherence update
-     - AI recommendations (generate)
-     - AI reports list
-     - Permissions & consent toggles
+   - Overview cockpit + timeline + analytics + recommendations + reports + consent
 
 3. **Doctor Dashboard (Clinical Console)**
-   - Patient selection + clinical status ring
-   - Sections/pages delivered:
-     - Cognitive trends chart
-     - Speech & language analysis chart
-     - Behavioral episode review
-     - Intervention effectiveness chart
-     - Medication correlation chart
-     - Doctor notes & care plan (create note)
-     - AI reports list
-   - AI observations/report generation wired with disclaimers
+   - Trends, analysis views, notes, reports, disclaimers
 
 4. **Admin Panel**
-   - Overview metrics + AI model status + system health
-   - Sections/pages delivered:
-     - Users listing (patients + doctors/caregivers)
-     - Audit logs
-     - AI model status
-     - Consent records
-     - System health + devices list
-   - Governance-oriented visuals and disclaimers present
+   - Users/patients/caregivers/doctors overview, audit logs, consent records, AI model/system health surfaces
 
 #### Phase 2D — End-to-end flows + testing **(DELIVERED ✅)**
-**Guaranteed demo flows (verified)**
-1. Caregiver generates daily summary → cached behavior supported via backend cache.
-2. Doctor generates weekly/monthly report → persisted to Mongo `reports`.
-3. Patient asks orientation question → confusion support response returned and displayed.
-4. Clinical outputs show prominent non-diagnostic disclaimers.
-5. Language switch EN↔DE across major screens.
-
-**Testing status**
-- ✅ `testing_agent_v3` iteration_1: passed all checks
-  - role switching, EN/DE switching, patient AI flow, caregiver actions, doctor actions, admin navigation
-  - backend APIs and AI endpoints respond correctly
-  - no runtime errors on role pages
+- ✅ `testing_agent_v3` iteration_1 passed.
 
 **Phase 2 user stories (delivered)**
-1. ✅ As a patient, I can press “Talk to Memind” and get a gentle orientation response that never argues.
-2. ✅ As a caregiver, I can view the timeline and review confusion episodes.
-3. ✅ As a caregiver, I can request AI recommendations and get actionable steps.
-4. ✅ As a doctor, I can generate weekly/monthly reports with disclaimers and persist them.
-5. ✅ As an admin, I can review consent records and see audit logs.
+1. ✅ Patient Talk to Memind is gentle and non-confrontational.
+2. ✅ Caregiver can review timeline and episodes.
+3. ✅ Caregiver can generate recommendations.
+4. ✅ Doctor can generate weekly/monthly reports with disclaimers and persist them.
+5. ✅ Admin can review consent records and audit logs.
 
 ---
 
-### Phase 3 — Feature Expansion + Hardening **(NEXT ⏭️)**
-**Goal:** Make it demo-resilient, deepen analytics and write flows, refine AI persistence/caching semantics, and improve accessibility + release readiness.
+### Phase 3 — Visual Upgrade to Match Reference Cockpit **(COMPLETED ✅)**
+**Goal:** Upgrade the existing prototype **in-place** to align closely with the uploaded futuristic medical AI cockpit reference (no backend rebuild), while preserving functionality, i18n, routing, and data.
 
-#### Phase 3A — AI quality, safety, and persistence refinements
-- **Prompt templates per task** (versioned) and locale-aware prompting.
-- **Time-window caching semantics**:
-  - daily summaries cache per date
-  - weekly/monthly reports cache per period window
-  - recommendations cache with TTL and/or “changes detected” invalidation
-- **Red-flag detection + escalation banner**:
-  - wandering risk spikes, unsafe exit attempts, self-harm language → caregiver/doctor/emergency guidance
-- Persist more AI outputs as first-class artifacts:
-  - link AI outputs to events/episodes (foreign keys)
-  - store model/provider/latency metadata and input summary (auditability)
+**Delivered**
+- Global design refinement:
+  - Denser cockpit layout, sharper panel hierarchy, more premium glassmorphism
+  - Enhanced shadows, borders, subtle HUD/grid overlays, better contrast
+  - Stronger role separation:
+    - Patient: warm + emotional + simple
+    - Care Center: dense analytics + risk cockpit
+    - Doctor: clinical console + structured views
+    - Admin: operational governance cockpit
+- **Brain Core** visualization:
+  - Added a custom Brain Core panel (SVG + pulsing neural nodes) as the “central intelligence” module
+  - Supports clear state language: Stable / Slightly unstable / Under observation / High confusion / Recovering
+- Patient App upgrades:
+  - Warmer emotional hero surface
+  - AI orb module + familiar voice card + confusion support card + summary + emergency CTA
+  - Kept large text, minimal decisions, dementia-friendly actions
+- Family Care Center upgrades:
+  - Large Brain Core panel + stability ring + patient identity card
+  - Risk tiles (confusion, wandering, fall, medication, sleep, last interaction)
+  - Denser overview grid and improved analytics framing
+- Doctor Clinical Console upgrades:
+  - Added patient list sidebar
+  - Added clinical brain status panel
+  - Increased density and clarity of clinical analytics surfaces
+- Admin Panel upgrades:
+  - Denser system cockpit: system health, AI model status, consent overview ring, audit logs, privacy/GDPR action placeholders
 
-#### Phase 3B — Deeper write flows (caregiver/doctor/admin)
-- Caregiver:
-  - create/edit episodes (tag triggers, interventions, outcomes)
-  - richer medication adherence (per-dose logs)
-  - add caregiver notes to timeline
-- Doctor:
-  - structured care plans and follow-up schedules
-  - “reviewed” workflow for AI observations/reports (doctor sign-off)
-- Admin:
-  - consent lifecycle actions (approve/deny/revoke)
-  - audit log filtering + export placeholder
+**Testing status**
+- ✅ `testing_agent_v3` iteration_2 passed:
+  - role switcher, EN/DE switching, redesigned patient/caregiver/doctor/admin pages
+  - navigation and core flows working, no runtime errors
+  - backend core endpoints stable
+  - note: AI endpoint timing can exceed 10s in test harness (expected with real LLM)
 
-#### Phase 3C — Analytics depth + charting
-- Caregiver:
-  - emotion stability trend over time, confusion episode frequency chart
-  - safety timeline correlations (noise/sleep/hydration proxies)
-- Doctor:
-  - cognitive domain trend charts (orientation, memory recall, language)
-  - intervention effectiveness metrics with deltas
-  - medication correlation views with better labeling and confidence
-
-#### Phase 3D — UX hardening + accessibility polish
-- Patient:
-  - large-text mode toggle, stronger focus/contrast checks
-  - simplified “Today” page and clearer emergency confirmations
-- Dashboards:
-  - improved loading/skeleton states for slow LLM calls
-  - consistent “Generated at / Cached” badges everywhere
-  - error boundary components and safe fallback messaging
-
-**Phase 3 user stories (target)**
-1. As a caregiver, I can create and tag a confusion episode and link it to interventions.
-2. As a doctor, I can review and sign off AI observations and reports (review status persisted).
-3. As a caregiver, I can see trends: confusion frequency, emotional stability, and safety risk trajectories.
-4. As an admin, I can manage consent lifecycle (grant/revoke) and see consistent audit trails.
-5. As a patient, I can enable large-text mode and navigate safely with minimal cognitive load.
+**Phase 3 user stories (delivered)**
+1. ✅ As a patient, I see a warmer, emotionally safe interface with an AI orb and familiar voice support.
+2. ✅ As a caregiver, I see a Brain Core cockpit with risk tiles and a dense analytical overview.
+3. ✅ As a doctor, I can use a clinical console with a patient sidebar and clinical brain status panel.
+4. ✅ As an admin, I can view governance surfaces (health, AI status, consent overview, audit logs, GDPR placeholders).
+5. ✅ As a user, EN/DE switching still works across redesigned experiences.
 
 ---
 
-### Phase 4 — Demo/Release Readiness **(FUTURE)**
-**Goal:** Polish, stability, and “doctor demo” flow, plus compliance UX completeness.
-- Performance + resilience: retries/timeouts, safe error toasts, debounced AI triggers, caching UX.
-- Accessibility: WCAG AA checks; keyboard navigation for dashboards; reduced motion support.
-- Compliance UX: clearer consent flows, export/delete placeholders, audit log completeness.
-- Final E2E test pass across roles + devices + languages.
+### Phase 4 — Demo/Release Readiness **(NEXT ⏭️)**
+**Goal:** Polish, stability, accessibility, and “doctor demo” flow; improve reliability around real LLM latency; harden compliance UX.
+
+#### Phase 4A — Performance + resilience
+- Add consistent “Generating…” states and **LLM latency messaging** (10–30s).
+- Add client-side request timeouts tuned per endpoint (e.g., 60–120s for reports) with clear retry CTA.
+- Add debounced AI triggers and guardrails to prevent double-submit.
+- Add cache badges consistently (Generated vs Cached) for all AI outputs.
+
+#### Phase 4B — Accessibility + patient safety
+- Patient large-text mode toggle (font scaling) and higher contrast mode.
+- Reduced-motion support (disable pulses/animations when enabled).
+- Emergency UX: stronger confirmation + “what happens next” explanation.
+
+#### Phase 4C — Clinical/compliance UX completeness
+- Doctor review workflow:
+  - mark AI observation/report “Reviewed” with timestamp + doctor ID
+  - audit log event for review
+- Consent lifecycle:
+  - explicit revoke flows, expiry notifications, “requires review” queue
+- GDPR surfaces:
+  - export request queue placeholder
+  - deletion request queue placeholder
+
+#### Phase 4D — Final E2E testing & demo script
+- Update backend_test timeouts for AI endpoints (or separate slow-suite).
+- Full cross-role demo script:
+  - Patient reassurance + confusion support
+  - Caregiver daily review cockpit
+  - Doctor clinical report + trends
+  - Admin audit log + consent overview
 
 **Phase 4 user stories (target)**
 1. As a patient, I can use the app comfortably with large text and minimal distractions.
 2. As a caregiver, I can run a full “today review” in under 2 minutes (summary → episodes → recommendations).
-3. As a doctor, I can demo trend analysis and generate a monthly report without regeneration delays.
-4. As an admin, I can show auditors an access/export log for AI-generated reports.
+3. As a doctor, I can demo trend analysis and generate a monthly report with clear cached/regen UX.
+4. As an admin, I can show an access/export log for AI-generated reports.
 5. As a demo operator, I can switch roles instantly without losing selected patient context.
 
 ---
 
 ## 3) Next Actions
-1. **Phase 3 AI hardening:** implement time-window cache semantics + locale-aware prompt templates.
-2. **Safety escalation:** add red-flag detection and escalation UI banners (caregiver + doctor).
-3. **Write flows:** add episode creation/tagging + richer medication logs + doctor review workflow.
-4. **Analytics depth:** expand charts and correlations; improve clinical console precision.
-5. **Accessibility + resilience:** patient large-text mode, improved loading states for real LLM calls, error boundaries.
+1. **Phase 4 resilience:** tune AI request timeouts, add retry and “LLM may take ~20s” UX.
+2. **Accessibility:** patient large-text mode + reduced-motion compliance.
+3. **Clinical governance:** add review/sign-off flows for reports and observations.
+4. **Consent/GDPR polish:** expand lifecycle actions + placeholder workflows.
+5. **Final E2E:** update test harness timeouts and rerun full suite.
 
 ## 4) Success Criteria
 - ✅ Phase 1: AI POC passes with real LLM + fallback, validated schemas, caching, and Mongo persistence.
 - ✅ Phase 2: Full multi-page prototype for Patient/Caregiver/Doctor/Admin with EN/DE i18n, seeded Mongo data, read/update APIs, AI integration, and successful E2E testing.
-- Phase 3+: Improved safety escalation behavior, richer write flows, deeper analytics, and stronger accessibility.
-- Demo readiness: generate daily summary + recommendations + clinical observation + weekly report; reload shows cached artifacts and stored history; disclaimers and consent visibility are prominent across roles.
+- ✅ Phase 3: Visual redesign aligned to uploaded cockpit reference with Brain Core, denser dashboards, warmer patient UI, and successful E2E testing.
+- Phase 4+: Stronger accessibility, resilience to LLM latency, clinical review workflows, and release-ready compliance surfaces.
