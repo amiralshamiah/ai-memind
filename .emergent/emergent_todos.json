@@ -1,22 +1,10 @@
 [
   {
-    "content": "Phase 2: Apply design guidelines and set up frontend/backend architecture",
-    "status": "completed"
-  },
-  {
-    "content": "Phase 2: Build Mongo-backed domain models, seed data, and REST/AI endpoints",
-    "status": "completed"
-  },
-  {
-    "content": "Phase 2: Build patient, caregiver, doctor, and admin experiences with EN/DE i18n",
-    "status": "completed"
-  },
-  {
     "content": "Phase 2: End-to-end testing using Testing Agent",
-    "status": "in_progress"
+    "status": "completed"
   },
   {
     "content": "Phase 2: All user stories covered in development and testing",
-    "status": "pending"
+    "status": "completed"
   }
 ]
