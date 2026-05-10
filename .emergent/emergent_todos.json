@@ -1,0 +1,18 @@
+[
+  {
+    "content": "Phase 1: Get LLM integration playbook for provider-agnostic AI layer",
+    "status": "completed"
+  },
+  {
+    "content": "Phase 1: Implement backend AI provider abstraction, fallback mode, Mongo cache, and POC endpoints",
+    "status": "in_progress"
+  },
+  {
+    "content": "Phase 1: Run and fix isolated AI POC until passing",
+    "status": "in_progress"
+  },
+  {
+    "content": "Phase 1: Update plan.md with Phase 1 status and next actions",
+    "status": "pending"
+  }
+]
