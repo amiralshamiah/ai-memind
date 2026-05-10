@@ -1,0 +1,153 @@
+{
+  "brand": {
+    "name": "Memind",
+    "tagline": "Den Menschen hinter dem Gedächtnisverlust bewahren."
+  },
+  "common": {
+    "patient": "Patienten-App",
+    "caregiver": "Familien-Care-Center",
+    "doctor": "Klinische Konsole",
+    "admin": "Admin-Panel",
+    "overview": "Übersicht",
+    "timeline": "Tagesverlauf",
+    "memoryGraph": "Gedächtnisnetzwerk",
+    "relationships": "Menschen & Beziehungen",
+    "memories": "Erinnerungen",
+    "analytics": "Analyse emotionaler Reaktionen",
+    "episodes": "Verwirrungsepisoden",
+    "safety": "Sicherheit & Standort",
+    "medication": "Medikation & tägliche Pflege",
+    "recommendations": "KI-Empfehlungen",
+    "reports": "KI-Berichte",
+    "consents": "Berechtigungen & Einwilligung",
+    "cognitive": "Kognitive Entwicklungen",
+    "speech": "Sprach- und Kommunikationsanalyse",
+    "behavior": "Analyse von Verhaltensereignissen",
+    "interventions": "Wirksamkeit von Interventionen",
+    "correlation": "Medikationskorrelation",
+    "notes": "Arztnotizen & Pflegeplan",
+    "users": "Benutzer",
+    "audit": "Audit-Protokolle",
+    "aiStatus": "KI-Modellstatus",
+    "systemHealth": "Systemzustand",
+    "language": "Sprache",
+    "lastUpdated": "Zuletzt aktualisiert",
+    "confidence": "Konfidenz",
+    "generated": "Generiert",
+    "cached": "Zwischengespeichertes Ergebnis",
+    "loading": "Analysiere…",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "refresh": "Aktualisieren",
+    "generate": "Generieren",
+    "doctorReview": "Ärztliche Prüfung erforderlich",
+    "backHome": "Zur Rollenübersicht",
+    "view": "Ansehen",
+    "active": "Aktiv",
+    "stable": "Stabil",
+    "live": "KI aktiv",
+    "mock": "Fallback-KI",
+    "all": "Alle",
+    "done": "Erledigt",
+    "remindLater": "Später erinnern",
+    "shareLocation": "Standort teilen",
+    "export": "Exportieren",
+    "comingSoon": "Für spätere Umsetzung vorbereitet"
+  },
+  "roles": {
+    "patient": {
+      "title": "Patienten-App",
+      "subtitle": "Ruhige Gedächtnisunterstützung für Orientierung, Sicherheit und emotionale Beruhigung."
+    },
+    "caregiver": {
+      "title": "Memind Care Center",
+      "subtitle": "Ein filmisches KI-Care-Kontrollzentrum für Familien und Betreuungspersonen."
+    },
+    "doctor": {
+      "title": "Memind Clinical Console",
+      "subtitle": "Professionelle KI-gestützte Verlaufsbeobachtung für die ärztliche Prüfung."
+    },
+    "admin": {
+      "title": "Memind Admin-Panel",
+      "subtitle": "Systemweite Übersicht für Benutzer, Einwilligungen, KI-Zustand und Audit-Bereitschaft."
+    }
+  },
+  "landing": {
+    "headline": "KI-Demenzpflege, die menschlich wirkt.",
+    "subheadline": "Wechseln Sie Rollen sofort und demonstrieren Sie Patientenruhe, Familien-Einblicke, klinische Trends und operative Governance in einem investorenreifen Prototypen.",
+    "enter": "Öffnen",
+    "privacy": "KI-Beobachtungen sind keine medizinische Diagnose. Der Zugriff auf sensible Daten erfordert Einwilligung und Prüfung.",
+    "trustTitle": "Gebaut für Patienten, Familien, Kliniker und Innovationspartner.",
+    "trustCopy": "Memind wirkt wie eine ruhige Backup-Erinnerungsschicht — für Orientierung, emotionale Sicherheit, Familienverbindung und klinische Sichtbarkeit, ohne menschliche Pflege zu ersetzen."
+  },
+  "patient": {
+    "greeting": "Guten Morgen, {{name}}. Sie sind sicher.",
+    "youAreHome": "Sie sind zu Hause.",
+    "everythingOkay": "Alles ist gut. Ich bin bei Ihnen.",
+    "talk": "Mit Memind sprechen",
+    "today": "Heute",
+    "myFamily": "Meine Familie",
+    "callFamily": "Familie anrufen",
+    "emergency": "Notfallhilfe",
+    "familyVisit": "Ihre Tochter Sarah besucht Sie später.",
+    "summaryTitle": "Tageszusammenfassung",
+    "supportPrompt": "Möchten Sie eine vertraute Stimme hören?",
+    "playVoice": "Sarahs Stimme abspielen",
+    "showPhoto": "Familienfoto anzeigen",
+    "howFeeling": "Wie fühlen Sie sich?",
+    "safeState": "Sie sind zu Hause sicher.",
+    "medicationPrompt": "Es ist Zeit für Ihre Medikamente.",
+    "medicationLocation": "Die Medikamente liegen neben dem Glas Wasser.",
+    "helpContacting": "Hilfe wird kontaktiert",
+    "voiceCompanion": "Sprachbegleiter",
+    "exampleQuestion": "Wo bin ich?",
+    "questionHome": "Ich will nach Hause"
+  },
+  "caregiver": {
+    "identity": "Patientenidentität",
+    "monitor": "Live-Patientenmonitor",
+    "recommendationsPreview": "Priorisierte Empfehlungen",
+    "timelineFilters": {
+      "medication": "Medikation",
+      "mood": "Stimmung",
+      "memory": "Gedächtnis",
+      "safety": "Sicherheit",
+      "family": "Familieninteraktionen",
+      "ai": "KI-Interventionen"
+    },
+    "observationCard": "Live-KI-Beobachtung",
+    "memoryGraphSubtitle": "Verbundene Personen, Orte, Erinnerungen, Stimmen und Interventionen.",
+    "calmingInsight": "Direkte Korrektur scheint Unruhe zu verstärken. Sanfte Umleitung wirkt besser.",
+    "generateSummary": "Tageszusammenfassung generieren",
+    "generateRecommendations": "Empfehlungen aktualisieren",
+    "reportPreview": "Vorschau Familienbericht"
+  },
+  "doctor": {
+    "selectedPatient": "Ausgewählter Patient",
+    "weeklyReport": "Wöchentlichen klinischen Bericht generieren",
+    "monthlyReport": "Monatlichen klinischen Bericht generieren",
+    "generateObservations": "KI-Klinikbeobachtungen generieren",
+    "reportDisclaimer": "KI-generierte Berichte erfordern ärztliche Prüfung.",
+    "observationDisclaimer": "KI-Beobachtungen sind keine Diagnose und müssen klinisch geprüft werden.",
+    "writeNote": "Arztnotiz schreiben",
+    "carePlan": "Pflegeplan",
+    "followUp": "Empfohlene Nachverfolgung"
+  },
+  "admin": {
+    "summary": "Systemübersicht",
+    "subscriptions": "Abonnements",
+    "dataExport": "Datenexport",
+    "gdprDeletion": "DSGVO-Löschanfragen",
+    "apiHealth": "API-Zustand",
+    "storage": "Speicherstatus"
+  },
+  "ethics": {
+    "title": "Ethik- & Sicherheitswächter",
+    "notDiagnosis": "KI-Beobachtungen sind keine medizinische Diagnose.",
+    "doctorReview": "Medizinische Entscheidungen erfordern eine ärztliche Prüfung.",
+    "voiceConsent": "Stimmrekonstruktion und Gedächtnisrekonstruktion erfordern eine ausdrückliche Einwilligung.",
+    "humanCare": "Das System ersetzt keine menschliche Pflege.",
+    "emergency": "Notfälle erfordern menschliches Eingreifen.",
+    "memoryLabel": "Gedächtnisrekonstruktionen müssen als original, familienbereitgestellt oder KI-generiert gekennzeichnet sein."
+  }
+}

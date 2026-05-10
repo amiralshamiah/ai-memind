@@ -1,0 +1,153 @@
+{
+  "brand": {
+    "name": "Memind",
+    "tagline": "Preserve the human behind the memory loss."
+  },
+  "common": {
+    "patient": "Patient App",
+    "caregiver": "Family Care Center",
+    "doctor": "Clinical Console",
+    "admin": "Admin Panel",
+    "overview": "Overview",
+    "timeline": "Daily Timeline",
+    "memoryGraph": "Memory Graph",
+    "relationships": "People & Relationships",
+    "memories": "Memories",
+    "analytics": "Emotional Response Analytics",
+    "episodes": "Confusion Episodes",
+    "safety": "Safety & Location",
+    "medication": "Medication & Daily Care",
+    "recommendations": "AI Recommendations",
+    "reports": "AI Reports",
+    "consents": "Permissions & Consent",
+    "cognitive": "Cognitive Trends",
+    "speech": "Speech & Language Analysis",
+    "behavior": "Behavioral Episode Review",
+    "interventions": "Intervention Effectiveness",
+    "correlation": "Medication Correlation",
+    "notes": "Doctor Notes & Care Plan",
+    "users": "Users",
+    "audit": "Audit Logs",
+    "aiStatus": "AI Model Status",
+    "systemHealth": "System Health",
+    "language": "Language",
+    "lastUpdated": "Last updated",
+    "confidence": "Confidence",
+    "generated": "Generated",
+    "cached": "Using cached result",
+    "loading": "Analyzing…",
+    "save": "Save",
+    "cancel": "Cancel",
+    "refresh": "Refresh",
+    "generate": "Generate",
+    "doctorReview": "Doctor review required",
+    "backHome": "Back to role switcher",
+    "view": "View",
+    "active": "Active",
+    "stable": "Stable",
+    "live": "AI Live",
+    "mock": "Fallback AI",
+    "all": "All",
+    "done": "Done",
+    "remindLater": "Remind me later",
+    "shareLocation": "Share location",
+    "export": "Export",
+    "comingSoon": "Prepared for later implementation"
+  },
+  "roles": {
+    "patient": {
+      "title": "Patient App",
+      "subtitle": "Calm memory support designed for reassurance, orientation, and daily safety."
+    },
+    "caregiver": {
+      "title": "Memind Care Center",
+      "subtitle": "A cinematic AI care command center for family and caregiver oversight."
+    },
+    "doctor": {
+      "title": "Memind Clinical Console",
+      "subtitle": "Professional AI-assisted clinical trend monitoring for doctor review."
+    },
+    "admin": {
+      "title": "Memind Admin Panel",
+      "subtitle": "System-wide oversight for users, consent, AI health, and audit readiness."
+    }
+  },
+  "landing": {
+    "headline": "AI dementia care, designed to feel human.",
+    "subheadline": "Switch roles instantly and demo patient calmness, caregiver insight, clinical trends, and operational governance in one investor-ready prototype.",
+    "enter": "Enter",
+    "privacy": "AI observations are not medical diagnosis. Sensitive data access requires consent and review.",
+    "trustTitle": "Built for patients, families, clinicians, and innovation partners.",
+    "trustCopy": "Memind acts as a calm backup memory layer — preserving orientation, emotional safety, family connection, and clinical visibility without replacing human care."
+  },
+  "patient": {
+    "greeting": "Good morning, {{name}}. You are safe.",
+    "youAreHome": "You are at home.",
+    "everythingOkay": "Everything is okay. I am here with you.",
+    "talk": "Talk to Memind",
+    "today": "Today",
+    "myFamily": "My Family",
+    "callFamily": "Call Family",
+    "emergency": "Emergency Help",
+    "familyVisit": "Your daughter Sarah will visit later.",
+    "summaryTitle": "Today summary",
+    "supportPrompt": "Would you like to hear a familiar voice?",
+    "playVoice": "Play Sarah’s voice",
+    "showPhoto": "Show family photo",
+    "howFeeling": "How are you feeling?",
+    "safeState": "You are safe at home.",
+    "medicationPrompt": "It is time for your medicine.",
+    "medicationLocation": "The medicine is next to the glass of water.",
+    "helpContacting": "Help is being contacted",
+    "voiceCompanion": "Voice Companion",
+    "exampleQuestion": "Where am I?",
+    "questionHome": "I want to go home"
+  },
+  "caregiver": {
+    "identity": "Patient identity",
+    "monitor": "Live Patient Monitor",
+    "recommendationsPreview": "Priority recommendations",
+    "timelineFilters": {
+      "medication": "Medication",
+      "mood": "Mood",
+      "memory": "Memory",
+      "safety": "Safety",
+      "family": "Family Interactions",
+      "ai": "AI Interventions"
+    },
+    "observationCard": "Live AI observation",
+    "memoryGraphSubtitle": "Connected people, places, memories, voices, and interventions.",
+    "calmingInsight": "Direct correction appears to increase agitation. Gentle redirection performs better.",
+    "generateSummary": "Generate daily summary",
+    "generateRecommendations": "Refresh recommendations",
+    "reportPreview": "Family report preview"
+  },
+  "doctor": {
+    "selectedPatient": "Selected patient",
+    "weeklyReport": "Generate Weekly Clinical Report",
+    "monthlyReport": "Generate Monthly Clinical Report",
+    "generateObservations": "Generate AI clinical observations",
+    "reportDisclaimer": "AI-generated reports require medical review.",
+    "observationDisclaimer": "AI observations are not diagnosis and must be reviewed clinically.",
+    "writeNote": "Write a doctor note",
+    "carePlan": "Care plan",
+    "followUp": "Follow-up recommendation"
+  },
+  "admin": {
+    "summary": "System summary",
+    "subscriptions": "Subscriptions",
+    "dataExport": "Data export",
+    "gdprDeletion": "GDPR deletion requests",
+    "apiHealth": "API health",
+    "storage": "Storage status"
+  },
+  "ethics": {
+    "title": "Ethics & safety guard",
+    "notDiagnosis": "AI observations are not medical diagnosis.",
+    "doctorReview": "Medical decisions require doctor review.",
+    "voiceConsent": "Voice cloning and memory reconstruction require explicit consent.",
+    "humanCare": "The system must not replace human care.",
+    "emergency": "Emergency situations require human intervention.",
+    "memoryLabel": "Memory reconstruction must be labeled as original, family-provided, or AI-generated."
+  }
+}

@@ -117,7 +117,7 @@ class AIRequest(BaseModel):
     patientId: str
     locale: str = "en"
     useCache: bool = True
-    context: dict
+    context: dict = Field(default_factory=dict)
     period: Optional[str] = None
 
 

@@ -1,18 +1,22 @@
 [
   {
-    "content": "Phase 1: Get LLM integration playbook for provider-agnostic AI layer",
+    "content": "Phase 2: Apply design guidelines and set up frontend/backend architecture",
     "status": "completed"
   },
   {
-    "content": "Phase 1: Implement backend AI provider abstraction, fallback mode, Mongo cache, and POC endpoints",
+    "content": "Phase 2: Build Mongo-backed domain models, seed data, and REST/AI endpoints",
+    "status": "completed"
+  },
+  {
+    "content": "Phase 2: Build patient, caregiver, doctor, and admin experiences with EN/DE i18n",
+    "status": "completed"
+  },
+  {
+    "content": "Phase 2: End-to-end testing using Testing Agent",
     "status": "in_progress"
   },
   {
-    "content": "Phase 1: Run and fix isolated AI POC until passing",
-    "status": "in_progress"
-  },
-  {
-    "content": "Phase 1: Update plan.md with Phase 1 status and next actions",
+    "content": "Phase 2: All user stories covered in development and testing",
     "status": "pending"
   }
 ]
