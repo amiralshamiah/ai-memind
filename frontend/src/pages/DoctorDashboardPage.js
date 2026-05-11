@@ -56,20 +56,41 @@ export default function DoctorDashboardPage({ patients, selectedPatientId, setSe
     [bundle]
   );
   const interventionData = [
-    { label: "Family voice", success: 82, agitationReduction: 76 },
-    { label: "Photos", success: 64, agitationReduction: 55 },
-    { label: "Music", success: 58, agitationReduction: 52 },
-    { label: "Calm AI", success: 52, agitationReduction: 46 },
-    { label: "Guidance", success: 44, agitationReduction: 39 },
-    { label: "Direct reminders", success: 35, agitationReduction: 24 },
-    { label: "Direct correction", success: 12, agitationReduction: 9 },
+    { label: t("caregiver.sarahVoice"), success: 82, agitationReduction: 76 },
+    { label: t("caregiver.familyPhotos"), success: 64, agitationReduction: 55 },
+    { label: t("caregiver.oldMusic"), success: 58, agitationReduction: 52 },
+    { label: t("caregiver.calmAiDialogue"), success: 52, agitationReduction: 46 },
+    { label: language === "de" ? "Schrittweise Anleitung" : "Step-by-step guidance", success: 44, agitationReduction: 39 },
+    { label: language === "de" ? "Direkte Erinnerung" : "Direct reminders", success: 35, agitationReduction: 24 },
+    { label: t("caregiver.directCorrection"), success: 12, agitationReduction: 9 },
   ];
   const brainMetrics = [
-    { label: "Current status", value: localizeText(patient?.currentState) },
-    { label: "Trend", value: patient?.riskScores?.confusion > 30 ? "Slight decline" : "Stable" },
-    { label: "AI confidence", value: `${patient?.aiConfidence || 0}%` },
-    { label: "Sleep", value: `${patient?.sleepQuality || 0}%` },
-    { label: "Medication", value: `${patient?.medicationAdherence || 0}%` },
+    { label: t("brain.state"), value: localizeText(patient?.currentState) },
+    { label: t("doctor.eveningInstability"), value: patient?.riskScores?.confusion > 30 ? (language === "de" ? "Leicht" : "Mild") : t("common.stable") },
+    { label: t("brain.aiConfidence"), value: `${patient?.aiConfidence || 0}%` },
+    { label: t("common.sleepQuality"), value: `${patient?.sleepQuality || 0}%` },
+    { label: t("caregiver.riskLabels.medication"), value: `${patient?.medicationAdherence || 0}%` },
+    { label: t("doctor.cognitiveFluctuation"), value: patient?.riskScores?.confusion > 30 ? `${patient.riskScores.confusion}%` : "—" },
+  ];
+
+  const speechMetrics = [
+    { label: t("doctor.speechSpeed"), value: "96 wpm", detail: language === "de" ? "verlangsamt" : "slower" },
+    { label: t("doctor.pauses"), value: "+18%", detail: language === "de" ? "Abendstunden" : "evening" },
+    { label: t("doctor.repeatedWords"), value: "+22%", detail: language === "de" ? "leichter Anstieg" : "mild rise" },
+    { label: t("doctor.vocabularyDecline"), value: "low", detail: language === "de" ? "beobachten" : "monitor" },
+    { label: t("doctor.nameRecall"), value: "moderate", detail: language === "de" ? "Familiennamen" : "family names" },
+    { label: t("doctor.wordFinding"), value: "mild", detail: language === "de" ? "nicht diagnostisch" : "not diagnostic" },
+  ];
+
+  const reportPreviewSections = [
+    language === "de" ? "Kognitive Zusammenfassung" : "Cognitive summary",
+    language === "de" ? "Verhaltensänderungen" : "Behavioral changes",
+    language === "de" ? "Medikamentenadhärenz" : "Medication adherence",
+    language === "de" ? "Auffällige Episoden" : "Notable episodes",
+    language === "de" ? "Sprach- und Kommunikationsbeobachtungen" : "Speech/language observations",
+    language === "de" ? "KI-Beobachtungen" : "AI observations",
+    language === "de" ? "Betreuernotizen" : "Caregiver notes",
+    language === "de" ? "Ärztliche Empfehlungen" : "Recommended follow-up",
   ];
 
   const generateObservations = async () => {
@@ -119,34 +140,43 @@ export default function DoctorDashboardPage({ patients, selectedPatientId, setSe
 
   const renderOverview = () => (
     <div className="space-y-4">
-      <div className="grid gap-4 xl:grid-cols-[1.05fr_0.95fr]">
+      <div className="grid gap-4 2xl:grid-cols-[1.05fr_0.95fr]">
         <div className="space-y-4">
           <GlassPanel className="space-y-4" dataTestid="doctor-selected-patient-card" variant="strong">
             <p className="text-xs uppercase tracking-[0.24em] text-white/40">{t("doctor.selectedPatient")}</p>
             <h2 className="font-display text-3xl text-white">{patient?.name}</h2>
             <p className="text-sm text-white/58">{localizeText(patient?.diagnosis)} · {localizeText(patient?.stage)}</p>
             <div className="grid gap-3 md:grid-cols-2">
-              <MetricTile dataTestid="doctor-metric-cognitive" detail="30 day trend" label="Cognitive Stability" value={`${patient?.cognitiveScore}/100`} />
-              <MetricTile dataTestid="doctor-metric-confusion" detail="This week" label="Confusion Episodes" value={`${bundle?.episodes?.length || 0}`} />
-              <MetricTile dataTestid="doctor-metric-sleep" detail="Sleep quality" label="Sleep" value={`${patient?.sleepQuality}%`} />
-              <MetricTile dataTestid="doctor-metric-adherence" detail="Medication adherence" label="Adherence" value={`${patient?.medicationAdherence}%`} />
+              <MetricTile dataTestid="doctor-metric-cognitive" detail={t("doctor.thirtyDayTrend")} label={t("caregiver.cognitiveStability")} value={`${patient?.cognitiveScore}/100`} />
+              <MetricTile dataTestid="doctor-metric-confusion" detail={language === "de" ? "diese Woche" : "this week"} label={t("common.episodes")} value={`${bundle?.episodes?.length || 0}`} />
+              <MetricTile dataTestid="doctor-metric-sleep" detail={t("common.sleepQuality")} label={language === "de" ? "Schlaf" : "Sleep"} value={`${patient?.sleepQuality}%`} />
+              <MetricTile dataTestid="doctor-metric-adherence" detail={t("common.medication")} label={language === "de" ? "Adhärenz" : "Adherence"} value={`${patient?.medicationAdherence}%`} />
             </div>
           </GlassPanel>
           <div className="grid gap-3 md:grid-cols-3">
-            <RiskCard dataTestid="doctor-risk-status" icon={BrainCircuit} label="Brain status" sublabel="Current" tone="amber" value={localizeText(patient?.currentState)} />
-            <RiskCard dataTestid="doctor-risk-orientation" icon={Activity} label="Orientation" sublabel="Signal" tone="cyan" value={`${patient?.domainScores?.orientation || 0}%`} />
-            <RiskCard dataTestid="doctor-risk-confidence" icon={Sparkles} label="AI confidence" sublabel="Model" tone="violet" value={`${patient?.aiConfidence || 0}%`} />
+            <RiskCard dataTestid="doctor-risk-status" icon={BrainCircuit} label={t("brain.state")} sublabel={t("common.active")} tone="amber" value={localizeText(patient?.currentState)} />
+            <RiskCard dataTestid="doctor-risk-orientation" icon={Activity} label={t("brain.orientation")} sublabel={language === "de" ? "Signal" : "Signal"} tone="cyan" value={`${patient?.domainScores?.orientation || 0}%`} />
+            <RiskCard dataTestid="doctor-risk-confidence" icon={Sparkles} label={t("brain.aiConfidence")} sublabel={language === "de" ? "Modell" : "Model"} tone="violet" value={`${patient?.aiConfidence || 0}%`} />
           </div>
         </div>
-        <BrainCorePanel dataTestid="doctor-clinical-brain-status-panel" metrics={brainMetrics} state={patient?.riskScores?.confusion > 30 ? (language === "de" ? "Leicht instabil" : "Slightly unstable") : localizeText(patient?.currentState)} title="Clinical Brain Status" variant="doctor" />
+        <BrainCorePanel
+          dataTestid="doctor-clinical-brain-status-panel"
+          labels={{ metricsTitle: t("brain.clinicalMetricsTitle"), rhythmLabel: t("brain.rhythm") }}
+          metrics={brainMetrics}
+          state={patient?.riskScores?.confusion > 30 ? t("brain.states.slightlyUnstable") : localizeText(patient?.currentState)}
+          subtitle={t("brain.clinicalSubtitle")}
+          title={t("doctor.clinicalBrainTitle")}
+          variant="doctor"
+        />
       </div>
 
       <div className="grid gap-4 xl:grid-cols-[1fr_1fr]">
         <GlassPanel className="space-y-4" dataTestid="doctor-overview-observation-panel" variant="strong">
           <div className="flex items-center justify-between gap-3">
-            <p className="font-display text-2xl text-white">AI observations</p>
+            <p className="font-display text-2xl text-white">{t("common.aiStatus")} · {t("common.cognitive")}</p>
             <Button className="bg-cyan-300 text-slate-950 hover:bg-cyan-200" data-testid="doctor-generate-observations-button" onClick={generateObservations} type="button">{t("doctor.generateObservations")}</Button>
           </div>
+          <div className="rounded-2xl border border-cyan-300/18 bg-cyan-300/10 p-4 text-sm leading-6 text-cyan-50/80">{t("doctor.clinicalBrainObservation")}</div>
           <EthicsConsentBanner compact dataTestid="doctor-overview-ethics-banner" />
           {(bundle?.aiObservations || []).slice(0, 3).map((entry, index) => (
             <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4" key={entry.id || index}>
@@ -155,12 +185,18 @@ export default function DoctorDashboardPage({ patients, selectedPatientId, setSe
             </div>
           ))}
         </GlassPanel>
-        <GlassPanel className="space-y-4" dataTestid="doctor-overview-report-panel" variant="strong">
-          <p className="font-display text-2xl text-white">Report generator</p>
+        <GlassPanel className="clinical-report-preview space-y-4" dataTestid="doctor-overview-report-panel" variant="strong">
+          <p className="font-display text-2xl text-white">{t("doctor.reportPreview")}</p>
+          <div className="grid gap-2 sm:grid-cols-2">
+            {reportPreviewSections.slice(0, 6).map((sectionLabel) => (
+              <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-white/68" key={sectionLabel}>{sectionLabel}</div>
+            ))}
+          </div>
           <div className="flex flex-wrap gap-3">
             <Button className="bg-cyan-300 text-slate-950 hover:bg-cyan-200" data-testid="doctor-generate-weekly-report-button" onClick={() => generateReport("weekly")} type="button">{t("doctor.weeklyReport")}</Button>
             <Button className="bg-white/10 text-white hover:bg-white/14" data-testid="doctor-generate-monthly-report-button" onClick={() => generateReport("monthly")} type="button">{t("doctor.monthlyReport")}</Button>
           </div>
+          <p className="text-sm leading-6 text-white/58">{t("doctor.reportDisclaimer")}</p>
           {(bundle?.reports || []).slice(0, 2).map((report, index) => (
             <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4" key={`${report.id || report.period}-${index}`}>
               <p className="font-display text-xl text-white">{localizeText(report.title) || report.title}</p>
@@ -173,37 +209,56 @@ export default function DoctorDashboardPage({ patients, selectedPatientId, setSe
   );
 
   const renderCognitive = () => (
-    <GlassPanel className="p-5" dataTestid="doctor-cognitive-trend-chart" variant="strong">
-      <p className="font-display text-2xl text-white">{t("common.cognitive")}</p>
-      <ResponsiveContainer height={320} width="100%">
-        <LineChart data={cognitiveTrendData}>
-          <CartesianGrid stroke="rgba(255,255,255,0.07)" strokeDasharray="3 3" />
-          <XAxis dataKey="day" stroke="rgba(255,255,255,0.5)" tick={{ fill: "rgba(255,255,255,0.55)", fontSize: 12 }} />
-          <YAxis stroke="rgba(255,255,255,0.5)" tick={{ fill: "rgba(255,255,255,0.55)", fontSize: 12 }} />
-          <Tooltip />
-          <Line dataKey="stability" dot={false} stroke="#00D4FF" strokeWidth={3} type="monotone" />
-          <Line dataKey="repetition" dot={false} stroke="#FFB020" strokeWidth={3} type="monotone" />
-          <Line dataKey="orientation" dot={false} stroke="#8C78FF" strokeWidth={3} type="monotone" />
-        </LineChart>
-      </ResponsiveContainer>
-    </GlassPanel>
+    <div className="grid gap-4 xl:grid-cols-[1fr_0.72fr]">
+      <GlassPanel className="p-5" dataTestid="doctor-cognitive-trend-chart" variant="strong">
+        <p className="font-display text-2xl text-white">{t("doctor.thirtyDayTrend")}</p>
+        <ResponsiveContainer height={320} width="100%">
+          <LineChart data={cognitiveTrendData}>
+            <CartesianGrid stroke="rgba(255,255,255,0.07)" strokeDasharray="3 3" />
+            <XAxis dataKey="day" stroke="rgba(255,255,255,0.5)" tick={{ fill: "rgba(255,255,255,0.55)", fontSize: 12 }} />
+            <YAxis stroke="rgba(255,255,255,0.5)" tick={{ fill: "rgba(255,255,255,0.55)", fontSize: 12 }} />
+            <Tooltip />
+            <Line dataKey="stability" dot={false} stroke="#00D4FF" strokeWidth={3} type="monotone" />
+            <Line dataKey="repetition" dot={false} stroke="#FFB020" strokeWidth={3} type="monotone" />
+            <Line dataKey="orientation" dot={false} stroke="#8C78FF" strokeWidth={3} type="monotone" />
+          </LineChart>
+        </ResponsiveContainer>
+      </GlassPanel>
+      <BrainCorePanel
+        dataTestid="doctor-cognitive-brain-core"
+        labels={{ metricsTitle: t("brain.clinicalMetricsTitle"), rhythmLabel: t("brain.rhythm") }}
+        metrics={brainMetrics}
+        size="compact"
+        state={patient?.riskScores?.confusion > 30 ? t("brain.states.slightlyUnstable") : localizeText(patient?.currentState)}
+        subtitle={t("doctor.clinicalBrainObservation")}
+        title={t("doctor.clinicalBrainTitle")}
+        variant="doctor"
+      />
+    </div>
   );
 
   const renderSpeech = () => (
-    <GlassPanel className="p-5" dataTestid="doctor-speech-analysis-chart" variant="strong">
-      <p className="font-display text-2xl text-white">{t("common.speech")}</p>
-      <ResponsiveContainer height={320} width="100%">
-        <LineChart data={speechData}>
-          <CartesianGrid stroke="rgba(255,255,255,0.07)" strokeDasharray="3 3" />
-          <XAxis dataKey="week" stroke="rgba(255,255,255,0.5)" tick={{ fill: "rgba(255,255,255,0.55)", fontSize: 12 }} />
-          <YAxis stroke="rgba(255,255,255,0.5)" tick={{ fill: "rgba(255,255,255,0.55)", fontSize: 12 }} />
-          <Tooltip />
-          <Line dataKey="speechSpeed" dot={false} stroke="#00D4FF" strokeWidth={3} type="monotone" />
-          <Line dataKey="nameRecall" dot={false} stroke="#3DDC97" strokeWidth={3} type="monotone" />
-          <Line dataKey="pauses" dot={false} stroke="#FFB020" strokeWidth={3} type="monotone" />
-        </LineChart>
-      </ResponsiveContainer>
-    </GlassPanel>
+    <div className="space-y-4">
+      <GlassPanel className="p-5" dataTestid="doctor-speech-analysis-chart" variant="strong">
+        <p className="font-display text-2xl text-white">{t("doctor.speechMetrics")}</p>
+        <ResponsiveContainer height={300} width="100%">
+          <LineChart data={speechData}>
+            <CartesianGrid stroke="rgba(255,255,255,0.07)" strokeDasharray="3 3" />
+            <XAxis dataKey="week" stroke="rgba(255,255,255,0.5)" tick={{ fill: "rgba(255,255,255,0.55)", fontSize: 12 }} />
+            <YAxis stroke="rgba(255,255,255,0.5)" tick={{ fill: "rgba(255,255,255,0.55)", fontSize: 12 }} />
+            <Tooltip />
+            <Line dataKey="speechSpeed" dot={false} stroke="#00D4FF" strokeWidth={3} type="monotone" />
+            <Line dataKey="nameRecall" dot={false} stroke="#3DDC97" strokeWidth={3} type="monotone" />
+            <Line dataKey="pauses" dot={false} stroke="#FFB020" strokeWidth={3} type="monotone" />
+          </LineChart>
+        </ResponsiveContainer>
+      </GlassPanel>
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+        {speechMetrics.map((metric) => (
+          <MetricTile dataTestid={`doctor-speech-metric-${metric.label}`} detail={metric.detail} key={metric.label} label={metric.label} value={metric.value} />
+        ))}
+      </div>
+    </div>
   );
 
   const renderBehavior = () => (
@@ -226,9 +281,10 @@ export default function DoctorDashboardPage({ patients, selectedPatientId, setSe
   );
 
   const renderCorrelation = () => (
-    <GlassPanel className="p-5" dataTestid="doctor-medication-correlation-chart" variant="strong">
+    <GlassPanel className="space-y-4 p-5" dataTestid="doctor-medication-correlation-chart" variant="strong">
       <p className="font-display text-2xl text-white">{t("common.correlation")}</p>
-      <ResponsiveContainer height={320} width="100%">
+      <div className="rounded-2xl border border-amber-300/20 bg-amber-400/10 p-4 text-sm leading-6 text-amber-50/80">{t("doctor.medicationCorrelationObservation")}</div>
+      <ResponsiveContainer height={300} width="100%">
         <ScatterChart>
           <CartesianGrid stroke="rgba(255,255,255,0.07)" strokeDasharray="3 3" />
           <XAxis dataKey="confusion" stroke="rgba(255,255,255,0.5)" tick={{ fill: "rgba(255,255,255,0.55)", fontSize: 12 }} type="number" />
@@ -264,6 +320,15 @@ export default function DoctorDashboardPage({ patients, selectedPatientId, setSe
   const renderReports = () => (
     <div className="space-y-4">
       <EthicsConsentBanner compact dataTestid="doctor-report-ethics-banner" />
+      <GlassPanel className="clinical-report-preview space-y-4" dataTestid="doctor-report-preview-structure" variant="strong">
+        <p className="font-display text-2xl text-white">{t("doctor.reportPreview")}</p>
+        <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+          {reportPreviewSections.map((sectionLabel) => (
+            <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-white/68" key={sectionLabel}>{sectionLabel}</div>
+          ))}
+        </div>
+        <p className="text-sm leading-6 text-white/58">{t("doctor.reportDisclaimer")}</p>
+      </GlassPanel>
       {(bundle?.reports || []).map((report, index) => (
         <GlassPanel className="space-y-3" dataTestid={`doctor-report-${index}`} key={report.id || `${report.period}-${index}`} variant="strong">
           <div className="flex items-center justify-between gap-3"><div><p className="font-display text-2xl text-white">{localizeText(report.title) || report.title}</p><p className="text-sm text-white/58">{report.period} · {formatDateTime(report.createdAt, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}</p></div><Badge className="rounded-full border border-white/10 bg-white/6 px-3 py-1 text-white/72">{report.provider || "ai"}</Badge></div>
@@ -280,7 +345,7 @@ export default function DoctorDashboardPage({ patients, selectedPatientId, setSe
       {loading ? (
         <GlassPanel className="h-[540px] animate-pulse bg-white/[0.04]" dataTestid="doctor-loading-state" />
       ) : (
-        <div className="grid gap-4 xl:grid-cols-[260px_1fr]">
+        <div className="grid gap-4 xl:grid-cols-[220px_1fr] 2xl:grid-cols-[260px_1fr]">
           {renderPatientList()}
           <div className="space-y-4">{sectionView[section] || renderOverview()}</div>
         </div>
