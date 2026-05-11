@@ -622,6 +622,33 @@ AI_OBSERVATIONS = [
     }
 ]
 
+BRAIN_STATE_SUMMARIES = [
+    {
+        "id": "brain-state-ahmad-001",
+        "patientId": "patient-ahmad-001",
+        "type": "brain_state_summary",
+        "state": loc("Slightly unstable", "Leicht instabil"),
+        "summary": loc(
+            "Stable baseline with mild evening orientation decline and strong response to Sarah's voice.",
+            "Stabile Basislinie mit leichter abendlicher Orientierungsabnahme und guter Reaktion auf Sarahs Stimme.",
+        ),
+        "confidence": 84,
+        "stabilityScore": 72,
+        "doctorReviewRequired": False,
+        "createdAt": (NOW - timedelta(hours=1)).isoformat(),
+        "provider": "seeded",
+        "model": "memind-demo",
+        "output": {
+            "metrics": [
+                {"label": loc("Orientation", "Orientierung"), "value": "64%"},
+                {"label": loc("Memory Recall", "Erinnerung"), "value": "51%"},
+                {"label": loc("Emotional Load", "Emotionale Belastung"), "value": loc("Moderate", "Mittel")},
+                {"label": loc("AI Confidence", "KI-Vertrauen"), "value": "84%"},
+            ]
+        },
+    }
+]
+
 DOCTOR_NOTES = [
     {
         "id": "doctor-note-001",
@@ -696,6 +723,7 @@ COLLECTION_SEEDS: dict[str, list[dict[str, Any]]] = {
     "consents": CONSENTS,
     "reports": REPORTS,
     "ai_observations": AI_OBSERVATIONS,
+    "brain_state_summaries": BRAIN_STATE_SUMMARIES,
     "doctor_notes": DOCTOR_NOTES,
     "audit_logs": AUDIT_LOGS,
     "devices": DEVICES,

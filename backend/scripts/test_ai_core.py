@@ -47,6 +47,8 @@ TASKS = [
     AITask.MEMORY_RECALL,
     AITask.CONFUSION_SUPPORT,
     AITask.EMOTIONAL_EXPLANATION,
+    AITask.BRAIN_STATE_SUMMARY,
+    AITask.BRAIN_CORE_INTERPRETATION,
 ]
 
 
@@ -56,6 +58,7 @@ async def run() -> None:
     await db.reports.delete_many({"patientId": "patient-ahmad-001"})
     await db.ai_observations.delete_many({"patientId": "patient-ahmad-001"})
     await db.ai_conversations.delete_many({"patientId": "patient-ahmad-001"})
+    await db.brain_state_summaries.delete_many({"patientId": "patient-ahmad-001"})
 
     status = await service.get_status()
     print("AI STATUS:")
@@ -102,11 +105,13 @@ async def run() -> None:
     report_count = await db.reports.count_documents({"patientId": "patient-ahmad-001"})
     observation_count = await db.ai_observations.count_documents({"patientId": "patient-ahmad-001"})
     conversation_count = await db.ai_conversations.count_documents({"patientId": "patient-ahmad-001"})
+    brain_state_count = await db.brain_state_summaries.count_documents({"patientId": "patient-ahmad-001"})
     cache_count = await db.ai_output_cache.count_documents({"patientId": "patient-ahmad-001"})
 
     assert report_count >= 2
     assert observation_count >= 1
     assert conversation_count >= 2
+    assert brain_state_count >= 2
     assert cache_count == len(TASKS)
 
     print("\nPersistence checks passed:")
@@ -116,6 +121,7 @@ async def run() -> None:
                 "reports": report_count,
                 "aiObservations": observation_count,
                 "aiConversations": conversation_count,
+                "brainStateSummaries": brain_state_count,
                 "cacheRecords": cache_count,
             },
             indent=2,
