@@ -18,6 +18,8 @@ from ai_schemas import (
     AI_DISCLAIMER_DE,
     AI_DISCLAIMER_EN,
     AITask,
+    BrainCoreInterpretationOutput,
+    BrainStateSummaryOutput,
     ClinicalObservationsOutput,
     ConfusionSupportOutput,
     DailySummaryOutput,
@@ -130,6 +132,33 @@ class AIService:
         serialized = serialize_doc(doc)
         return serialized.get("createdAt") if serialized else None
 
+    async def generateDailySummary(self, patient_id: str, payload: dict[str, Any], locale: str = "en", use_cache: bool = True) -> dict[str, Any]:
+        return await self.generate(AITask.DAILY_SUMMARY, payload, patient_id, locale, use_cache)
+
+    async def generateCaregiverRecommendations(self, patient_id: str, payload: dict[str, Any], locale: str = "en", use_cache: bool = True) -> dict[str, Any]:
+        return await self.generate(AITask.RECOMMENDATIONS, payload, patient_id, locale, use_cache)
+
+    async def generateClinicalObservations(self, patient_id: str, payload: dict[str, Any], locale: str = "en", use_cache: bool = True) -> dict[str, Any]:
+        return await self.generate(AITask.CLINICAL_OBSERVATIONS, payload, patient_id, locale, use_cache)
+
+    async def generateConfusionSupport(self, patient_id: str, phrase: str, payload: dict[str, Any], locale: str = "en", use_cache: bool = True) -> dict[str, Any]:
+        return await self.generate(AITask.CONFUSION_SUPPORT, {**payload, "question": phrase}, patient_id, locale, use_cache)
+
+    async def generateMemoryRecall(self, patient_id: str, query: str, payload: dict[str, Any], locale: str = "en", use_cache: bool = True) -> dict[str, Any]:
+        return await self.generate(AITask.MEMORY_RECALL, {**payload, "question": query}, patient_id, locale, use_cache)
+
+    async def generateWeeklyReport(self, patient_id: str, payload: dict[str, Any], locale: str = "en", use_cache: bool = True) -> dict[str, Any]:
+        return await self.generate(AITask.REPORT, {**payload, "period": "weekly"}, patient_id, locale, use_cache)
+
+    async def generateMonthlyReport(self, patient_id: str, payload: dict[str, Any], locale: str = "en", use_cache: bool = True) -> dict[str, Any]:
+        return await self.generate(AITask.REPORT, {**payload, "period": "monthly"}, patient_id, locale, use_cache)
+
+    async def generateBrainStateSummary(self, patient_id: str, payload: dict[str, Any], locale: str = "en", use_cache: bool = True) -> dict[str, Any]:
+        return await self.generate(AITask.BRAIN_STATE_SUMMARY, payload, patient_id, locale, use_cache)
+
+    async def generateBrainCoreInterpretation(self, patient_id: str, payload: dict[str, Any], locale: str = "en", use_cache: bool = True) -> dict[str, Any]:
+        return await self.generate(AITask.BRAIN_CORE_INTERPRETATION, payload, patient_id, locale, use_cache)
+
     async def generate(self, task: AITask, payload: dict[str, Any], patient_id: str, locale: str = "en", use_cache: bool = True) -> dict[str, Any]:
         schema_model = TASK_SCHEMA_MAP[task]
         cache_key = self._hash_payload(task, patient_id, payload, locale)
@@ -239,6 +268,18 @@ class AIService:
                     "preview": output_payload.get("response", ""),
                 }
             )
+        if task in {AITask.BRAIN_STATE_SUMMARY, AITask.BRAIN_CORE_INTERPRETATION}:
+            await db.brain_state_summaries.insert_one(
+                {
+                    **base_doc,
+                    "type": task.value,
+                    "state": output_payload.get("current_state") or output_payload.get("visual_state", "stable"),
+                    "summary": output_payload.get("summary") or output_payload.get("interpretation", ""),
+                    "confidence": output_payload.get("confidence"),
+                    "stabilityScore": output_payload.get("stability_score"),
+                    "doctorReviewRequired": output_payload.get("disclaimers", {}).get("doctor_review_required", False),
+                }
+            )
 
     @staticmethod
     def _hash_payload(task: AITask, patient_id: str, payload: dict[str, Any], locale: str) -> str:
@@ -266,6 +307,8 @@ def build_system_prompt(task: AITask, locale: str) -> str:
         AITask.MEMORY_RECALL: "Answer memory recall questions gently. Never harshly correct the patient. Label content as AI-generated or family-provided.",
         AITask.CONFUSION_SUPPORT: "Offer calming, grounding support. Never argue with the patient. Use gentle redirection.",
         AITask.EMOTIONAL_EXPLANATION: "Explain likely emotional triggers and calming interventions for caregivers using supportive language.",
+        AITask.BRAIN_STATE_SUMMARY: "Summarize current cognitive brain state, orientation, memory recall, emotional load, confusion pressure, attention stability, and AI confidence without diagnosing.",
+        AITask.BRAIN_CORE_INTERPRETATION: "Create a family and clinical interpretation for the Memind Brain Core visualization, keeping medical safety language explicit and non-diagnostic.",
     }
     return f"{common} {task_guidance[task]}"
 
@@ -279,7 +322,7 @@ def build_user_prompt(task: AITask, payload: dict[str, Any], locale: str) -> str
         f"JSON schema: {json.dumps(schema, ensure_ascii=False)}\n"
         "Important rules:\n"
         f"- Include disclaimer strings exactly or equivalently matching these meanings: '{AI_DISCLAIMER_EN}' / '{AI_DISCLAIMER_DE}'.\n"
-        "- For clinical or report outputs, set doctor_review_required to true.\n"
+        "- For clinical, report, or brain core interpretation outputs, set doctor_review_required to true.\n"
         "- For confusion support and memory recall, be gentle and non-confrontational.\n"
         "- Use realistic healthcare-safe language, not diagnosis.\n"
         f"Context JSON: {json.dumps(enriched_payload, ensure_ascii=False, default=str)}"
@@ -472,6 +515,65 @@ def build_mock_output(task: str | None, payload: dict[str, Any], locale: str) ->
                 else f"Reagieren Sie sanft auf den Satz '{question}' und vermeiden Sie direkte Korrekturen."
             ),
             disclaimers={"doctor_review_required": False},
+        ).model_dump()
+
+    if task == AITask.BRAIN_STATE_SUMMARY.value:
+        return BrainStateSummaryOutput(
+            current_state=("Slightly unstable" if locale != "de" else "Leicht instabil"),
+            stability_score=int(payload.get("cognitiveScore") or 72),
+            summary=(
+                f"{patient_name} is currently stable overall, with reduced orientation during transition periods and strong calming response to {caregiver_name}'s voice."
+                if locale != "de"
+                else f"{patient_name} ist insgesamt stabil, mit reduzierter Orientierung in Übergangsphasen und guter Beruhigung durch {caregiver_name}s Stimme."
+            ),
+            metrics=[
+                {"label": "Orientation" if locale != "de" else "Orientierung", "value": "64%", "trend": "mild decline" if locale != "de" else "leicht rückläufig"},
+                {"label": "Memory recall" if locale != "de" else "Erinnerung", "value": "51%", "trend": "stable" if locale != "de" else "stabil"},
+                {"label": "Emotional load" if locale != "de" else "Emotionale Belastung", "value": "moderate" if locale != "de" else "mittel"},
+                {"label": "AI confidence" if locale != "de" else "KI-Vertrauen", "value": "84%"},
+            ],
+            risk_flags=[
+                "Evening confusion pressure" if locale != "de" else "Abendlicher Verwirrungsdruck",
+                "Noise sensitivity" if locale != "de" else "Lärmsensibilität",
+            ],
+            recommended_actions=[
+                f"Use {caregiver_name}'s voice before sunset transitions." if locale != "de" else f"{caregiver_name}s Stimme vor Übergängen am Abend verwenden.",
+                "Avoid direct correction; use gentle redirection." if locale != "de" else "Direkte Korrektur vermeiden; sanft umleiten.",
+            ],
+            disclaimers={"doctor_review_required": False},
+        ).model_dump()
+
+    if task == AITask.BRAIN_CORE_INTERPRETATION.value:
+        return BrainCoreInterpretationOutput(
+            visual_state=("Recovering" if locale != "de" else "Erholt sich"),
+            interpretation=(
+                "The Brain Core shows a stable baseline with short confusion pressure spikes around evening transitions."
+                if locale != "de"
+                else "Der Brain Core zeigt eine stabile Basislinie mit kurzen Spitzen im Verwirrungsdruck rund um Abendübergänge."
+            ),
+            family_summary=(
+                f"{caregiver_name}'s voice and family photos remain the strongest emotional anchors."
+                if locale != "de"
+                else f"{caregiver_name}s Stimme und Familienfotos bleiben die stärksten emotionalen Anker."
+            ),
+            clinical_note=(
+                "Observation only: evening cognitive fluctuation should be reviewed alongside medication schedule and sleep quality."
+                if locale != "de"
+                else "Nur Beobachtung: Abendliche kognitive Schwankungen sollten gemeinsam mit Medikationsplan und Schlafqualität geprüft werden."
+            ),
+            recommended_interventions=[
+                "Familiar voice cue",
+                "Family photo grounding",
+                "Low-stimulation evening routine",
+            ]
+            if locale != "de"
+            else [
+                "Vertraute Stimme",
+                "Orientierung mit Familienfoto",
+                "Reizarme Abendroutine",
+            ],
+            confidence=84,
+            disclaimers={"doctor_review_required": True},
         ).model_dump()
 
     return EmotionalExplanationOutput(

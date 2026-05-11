@@ -232,6 +232,411 @@
   background: linear-gradient(160deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
 }
 
+.brain-core-visual {
+  position: relative;
+  min-height: 320px;
+  border-radius: 26px;
+  overflow: hidden;
+  isolation: isolate;
+  background:
+    radial-gradient(circle at 50% 46%, rgba(var(--brain-state-rgb, 30, 231, 255), 0.3), transparent 22%),
+    radial-gradient(circle at 62% 38%, rgba(196, 112, 255, 0.2), transparent 24%),
+    radial-gradient(circle at 26% 72%, rgba(0, 212, 255, 0.12), transparent 22%),
+    linear-gradient(160deg, rgba(8, 15, 35, 0.94), rgba(3, 7, 18, 0.92));
+  box-shadow:
+    inset 0 0 0 1px rgba(var(--brain-state-rgb, 30, 231, 255), 0.16),
+    inset 0 0 90px rgba(var(--brain-state-rgb, 30, 231, 255), 0.08);
+}
+
+.brain-core-visual-large {
+  min-height: clamp(300px, 24vw, 390px);
+}
+
+.brain-core-visual-compact {
+  min-height: 220px;
+}
+
+.brain-core-visual::before {
+  content: "";
+  position: absolute;
+  inset: -30%;
+  background:
+    conic-gradient(from 60deg, transparent 0deg, rgba(var(--brain-state-rgb, 30, 231, 255), 0.2) 44deg, transparent 86deg, rgba(140, 120, 255, 0.18) 164deg, transparent 236deg);
+  opacity: 0.7;
+  animation: brainScannerSpin 12s linear infinite;
+  z-index: -2;
+}
+
+.brain-core-visual::after {
+  content: "";
+  position: absolute;
+  inset: 14px;
+  border: 1px solid rgba(var(--brain-state-rgb, 30, 231, 255), 0.12);
+  border-radius: 24px;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 34px 34px;
+  mask-image: radial-gradient(circle at 50% 45%, black, transparent 72%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.brain-core-lens,
+.brain-core-scanner {
+  position: absolute;
+  inset: 42px 72px;
+  border-radius: 999px;
+  pointer-events: none;
+}
+
+.brain-core-scanner {
+  border: 1px solid rgba(var(--brain-state-rgb, 30, 231, 255), 0.28);
+  box-shadow:
+    0 0 40px rgba(var(--brain-state-rgb, 30, 231, 255), 0.14),
+    inset 0 0 32px rgba(140, 120, 255, 0.08);
+  animation: scannerBreath 5.8s ease-in-out infinite;
+}
+
+.brain-core-lens {
+  inset: 70px 118px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: radial-gradient(circle, rgba(var(--brain-state-rgb, 30, 231, 255), 0.06), transparent 62%);
+  filter: blur(0.2px);
+}
+
+.brain-core-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  filter:
+    drop-shadow(0 0 16px rgba(var(--brain-state-rgb, 30, 231, 255), 0.44))
+    drop-shadow(0 0 34px rgba(140, 120, 255, 0.22));
+  transform: scale(1.12);
+  transform-origin: center;
+}
+
+.brain-core-brain-fill {
+  fill: rgba(var(--brain-state-rgb, 30, 231, 255), 0.08);
+  stroke: rgba(var(--brain-state-rgb, 30, 231, 255), 0.3);
+  stroke-width: 1.5;
+}
+
+.brain-core-brain-stroke {
+  fill: none;
+  stroke: rgba(190, 212, 255, 0.64);
+  stroke-width: 2.2;
+  stroke-linejoin: round;
+}
+
+.brain-core-fold,
+.brain-core-route,
+.brain-core-signal {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.brain-core-fold {
+  stroke: rgba(var(--brain-state-rgb, 30, 231, 255), 0.4);
+  stroke-width: 2.2;
+}
+
+.brain-core-fold-violet {
+  stroke: rgba(180, 156, 255, 0.42);
+}
+
+.brain-core-route {
+  stroke: var(--brain-state-color, #1ee7ff);
+  stroke-width: 2.8;
+  stroke-dasharray: 14 10;
+  filter: drop-shadow(0 0 10px rgba(var(--brain-state-rgb, 30, 231, 255), 0.86));
+  animation: neuralDash 2.8s linear infinite;
+}
+
+.brain-core-route-b {
+  stroke: var(--brain-state-secondary, #7c6bff);
+  animation-duration: 3.4s;
+}
+
+.brain-core-route-c {
+  opacity: 0.8;
+  animation-duration: 4.2s;
+}
+
+.brain-core-signal {
+  stroke: rgba(var(--brain-state-rgb, 30, 231, 255), 0.34);
+  stroke-width: 1.6;
+  stroke-dasharray: 5 12;
+  animation: neuralDash 5.5s linear infinite reverse;
+}
+
+.brain-core-svg-node {
+  fill: #f8fbff;
+  stroke: var(--brain-state-color, #1ee7ff);
+  stroke-width: 2;
+  filter: drop-shadow(0 0 12px rgba(var(--brain-state-rgb, 30, 231, 255), 0.82));
+  animation: nodePulse 2.4s ease-in-out infinite;
+}
+
+.brain-core-particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--brain-state-color, #1ee7ff);
+  box-shadow: 0 0 18px rgba(var(--brain-state-rgb, 30, 231, 255), 0.9);
+  animation: particleDrift 7s ease-in-out infinite;
+}
+
+.brain-core-state-warning .brain-core-route,
+.brain-core-state-warning .brain-core-svg-node {
+  animation-duration: 1.7s;
+}
+
+.brain-core-mode-clinical {
+  background:
+    radial-gradient(circle at 50% 46%, rgba(var(--brain-state-rgb, 30, 231, 255), 0.26), transparent 22%),
+    radial-gradient(circle at 78% 26%, rgba(255, 176, 32, 0.14), transparent 18%),
+    linear-gradient(160deg, rgba(7, 12, 26, 0.96), rgba(3, 6, 14, 0.94));
+}
+
+.patient-calm-hero {
+  min-height: calc(100vh - 126px);
+  display: grid;
+  align-items: center;
+  border-radius: 34px;
+  background:
+    linear-gradient(180deg, rgba(8, 13, 28, 0.24), rgba(5, 8, 18, 0.92)),
+    linear-gradient(120deg, rgba(21, 25, 54, 0.54), rgba(255, 130, 98, 0.12)),
+    url("https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1800&q=82") center/cover;
+}
+
+.patient-home-stage {
+  max-width: 760px;
+}
+
+.patient-calm-hero .patient-orb {
+  min-height: clamp(250px, 34vh, 300px);
+}
+
+.patient-calm-hero .patient-orb-core {
+  width: 206px;
+  height: 206px;
+}
+
+.patient-home-lower {
+  scroll-margin-top: 120px;
+}
+
+.patient-orb {
+  text-align: inherit;
+  border: 0;
+  color: inherit;
+}
+
+.patient-orb::before,
+.patient-orb::after {
+  display: none;
+}
+
+.patient-orb-button {
+  cursor: pointer;
+  transition: transform 220ms ease, filter 220ms ease;
+}
+
+.patient-orb-button:hover {
+  transform: translateY(-2px) scale(1.01);
+  filter: brightness(1.06);
+}
+
+.patient-orb-core {
+  position: relative;
+  z-index: 2;
+  animation: patientOrbBreath 5.4s ease-in-out infinite;
+}
+
+.patient-orb-ring {
+  position: absolute;
+  border-radius: 999px;
+  pointer-events: none;
+}
+
+.patient-orb-ring-a {
+  width: 242px;
+  height: 242px;
+  border: 1px solid rgba(124, 220, 255, 0.44);
+  box-shadow: 0 0 52px rgba(104, 213, 255, 0.24), inset 0 0 28px rgba(104, 213, 255, 0.18);
+  animation: patientOrbBreath 5.4s ease-in-out infinite;
+}
+
+.patient-orb-ring-b {
+  width: 318px;
+  height: 318px;
+  border: 1px solid rgba(181, 128, 255, 0.28);
+  box-shadow: 0 0 90px rgba(181, 128, 255, 0.16);
+  animation: warmHalo 7.2s ease-in-out infinite;
+}
+
+.patient-orb-wave {
+  position: absolute;
+  left: 50%;
+  top: 54%;
+  width: 3px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.15), rgba(90, 216, 255, 0.95), rgba(255, 255, 255, 0.12));
+  box-shadow: 0 0 16px rgba(90, 216, 255, 0.75);
+  transform: translate(-50%, -50%);
+  animation: patientWave 1.6s ease-in-out infinite;
+}
+
+.patient-orb-wave-a {
+  height: 34px;
+  margin-left: -12px;
+}
+
+.patient-orb-wave-b {
+  height: 52px;
+  animation-delay: 0.18s;
+}
+
+.patient-orb-wave-c {
+  height: 28px;
+  margin-left: 12px;
+  animation-delay: 0.34s;
+}
+
+.memind-memory-network {
+  position: relative;
+  min-height: 360px;
+  overflow: hidden;
+  border-radius: 26px;
+  border: 1px solid rgba(0, 212, 255, 0.16);
+  background:
+    radial-gradient(circle at center, rgba(0, 212, 255, 0.16), transparent 24%),
+    radial-gradient(circle at 80% 25%, rgba(140, 120, 255, 0.18), transparent 20%),
+    linear-gradient(160deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
+}
+
+.memind-memory-network-lines {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(30deg, transparent 44%, rgba(0, 212, 255, 0.22) 45%, transparent 46%),
+    linear-gradient(150deg, transparent 44%, rgba(140, 120, 255, 0.22) 45%, transparent 46%),
+    linear-gradient(90deg, transparent 49%, rgba(255, 255, 255, 0.1) 50%, transparent 51%),
+    linear-gradient(0deg, transparent 49%, rgba(255, 255, 255, 0.08) 50%, transparent 51%);
+  opacity: 0.72;
+  mask-image: radial-gradient(circle, black 0%, black 54%, transparent 75%);
+}
+
+.memind-memory-node {
+  position: absolute;
+  display: grid;
+  min-width: 118px;
+  gap: 2px;
+  place-items: center;
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  border-radius: 18px;
+  background: rgba(9, 15, 32, 0.78);
+  padding: 12px 14px;
+  text-align: center;
+  box-shadow: 0 0 34px rgba(0, 212, 255, 0.12);
+}
+
+.memind-memory-node span {
+  color: #ffffff;
+  font-size: 0.92rem;
+}
+
+.memind-memory-node small {
+  color: rgba(234, 242, 255, 0.58);
+  font-size: 0.72rem;
+}
+
+.memind-memory-node-center {
+  left: 50%;
+  top: 50%;
+  min-width: 148px;
+  border-color: rgba(0, 212, 255, 0.38);
+  background: rgba(0, 212, 255, 0.12);
+  transform: translate(-50%, -50%);
+}
+
+.memind-memory-node-1 { left: 9%; top: 14%; }
+.memind-memory-node-2 { right: 10%; top: 12%; }
+.memind-memory-node-3 { left: 12%; bottom: 16%; }
+.memind-memory-node-4 { right: 8%; bottom: 17%; }
+.memind-memory-node-5 { left: 42%; top: 8%; }
+.memind-memory-node-6 { left: 42%; bottom: 8%; }
+.memind-memory-node-7 { left: 4%; top: 47%; }
+.memind-memory-node-8 { right: 4%; top: 47%; }
+
+.clinical-report-preview {
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02)),
+    radial-gradient(circle at top right, rgba(0, 212, 255, 0.14), transparent 28%);
+}
+
+@keyframes neuralDash {
+  to {
+    stroke-dashoffset: -48;
+  }
+}
+
+@keyframes brainScannerSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes scannerBreath {
+  0%,
+  100% {
+    transform: scale(0.96);
+    opacity: 0.72;
+  }
+  50% {
+    transform: scale(1.04);
+    opacity: 1;
+  }
+}
+
+@keyframes particleDrift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0.25;
+  }
+  50% {
+    transform: translate3d(16px, -18px, 0);
+    opacity: 0.95;
+  }
+}
+
+@keyframes patientOrbBreath {
+  0%,
+  100% {
+    transform: scale(0.98);
+  }
+  50% {
+    transform: scale(1.045);
+  }
+}
+
+@keyframes patientWave {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) scaleY(0.65);
+    opacity: 0.48;
+  }
+  50% {
+    transform: translate(-50%, -50%) scaleY(1.12);
+    opacity: 1;
+  }
+}
+
 @keyframes nodePulse {
   0%,
   100% {

@@ -72,6 +72,7 @@ async def build_ai_context(patient_id: str, extra_context: dict[str, Any], perio
     medications = await collection_for_patient("medications", patient_id, sort_field="name")
     risk_scores = await collection_for_patient("risk_scores", patient_id, sort_field="timestamp")
     events = await collection_for_patient("events", patient_id, sort_field="timestamp")
+    brain_state_summaries = await collection_for_patient("brain_state_summaries", patient_id, sort_field="createdAt")
     return {
         "patientName": patient.get("name"),
         "primaryCaregiver": caregiver.get("name") if caregiver else None,
@@ -89,6 +90,7 @@ async def build_ai_context(patient_id: str, extra_context: dict[str, Any], perio
         "medications": medications,
         "events": events[:8],
         "riskHistory": risk_scores[-7:],
+        "brainStateSummaries": brain_state_summaries[:5],
         "period": period,
         **extra_context,
     }
@@ -191,6 +193,12 @@ async def get_patient_risk_scores(patient_id: str) -> list[dict[str, Any]]:
     return await collection_for_patient("risk_scores", patient_id)
 
 
+@api_router.get("/patients/{patient_id}/brain-state-summaries")
+async def get_patient_brain_state_summaries(patient_id: str) -> list[dict[str, Any]]:
+    await get_patient_or_404(patient_id)
+    return await collection_for_patient("brain_state_summaries", patient_id, sort_field="createdAt")
+
+
 @api_router.get("/patients/{patient_id}/consents")
 async def get_patient_consents(patient_id: str) -> list[dict[str, Any]]:
     await get_patient_or_404(patient_id)
@@ -221,6 +229,7 @@ async def get_dashboard_bootstrap(patient_id: str) -> dict[str, Any]:
         "reports": await get_patient_reports(patient_id),
         "aiObservations": await get_patient_ai_observations(patient_id),
         "riskScores": await get_patient_risk_scores(patient_id),
+        "brainStateSummaries": await get_patient_brain_state_summaries(patient_id),
         "consents": await get_patient_consents(patient_id),
         "doctorNotes": await get_patient_doctor_notes(patient_id),
         "alerts": serialize_doc(await db.alerts.find({"patientId": patient_id}).sort("createdAt", -1).to_list(50)),
@@ -345,6 +354,16 @@ async def clinical_observations(request: AIRequest) -> dict[str, Any]:
 @api_router.post("/ai/emotional-explanation")
 async def emotional_explanation(request: AIRequest) -> dict[str, Any]:
     return await run_ai_task(AITask.EMOTIONAL_EXPLANATION, request)
+
+
+@api_router.post("/ai/brain-state-summary")
+async def brain_state_summary(request: AIRequest) -> dict[str, Any]:
+    return await run_ai_task(AITask.BRAIN_STATE_SUMMARY, request)
+
+
+@api_router.post("/ai/brain-core-interpretation")
+async def brain_core_interpretation(request: AIRequest) -> dict[str, Any]:
+    return await run_ai_task(AITask.BRAIN_CORE_INTERPRETATION, request)
 
 
 app.include_router(api_router)

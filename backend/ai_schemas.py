@@ -20,6 +20,8 @@ class AITask(str, Enum):
     MEMORY_RECALL = "memory_recall"
     CONFUSION_SUPPORT = "confusion_support"
     EMOTIONAL_EXPLANATION = "emotional_explanation"
+    BRAIN_STATE_SUMMARY = "brain_state_summary"
+    BRAIN_CORE_INTERPRETATION = "brain_core_interpretation"
 
 
 class MedicalDisclaimer(BaseModel):
@@ -113,6 +115,32 @@ class EmotionalExplanationOutput(BaseModel):
     disclaimers: MedicalDisclaimer
 
 
+class BrainMetricOutput(BaseModel):
+    label: str
+    value: str
+    trend: Optional[str] = None
+
+
+class BrainStateSummaryOutput(BaseModel):
+    current_state: str
+    stability_score: int = Field(ge=0, le=100)
+    summary: str
+    metrics: List[BrainMetricOutput]
+    risk_flags: List[str]
+    recommended_actions: List[str]
+    disclaimers: MedicalDisclaimer
+
+
+class BrainCoreInterpretationOutput(BaseModel):
+    visual_state: str
+    interpretation: str
+    family_summary: str
+    clinical_note: str
+    recommended_interventions: List[str]
+    confidence: int = Field(ge=0, le=100)
+    disclaimers: MedicalDisclaimer
+
+
 class AIRequest(BaseModel):
     patientId: str
     locale: str = "en"
@@ -129,4 +157,6 @@ TASK_SCHEMA_MAP = {
     AITask.MEMORY_RECALL: MemoryRecallOutput,
     AITask.CONFUSION_SUPPORT: ConfusionSupportOutput,
     AITask.EMOTIONAL_EXPLANATION: EmotionalExplanationOutput,
+    AITask.BRAIN_STATE_SUMMARY: BrainStateSummaryOutput,
+    AITask.BRAIN_CORE_INTERPRETATION: BrainCoreInterpretationOutput,
 }

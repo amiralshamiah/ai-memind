@@ -20,6 +20,33 @@ export const fetchPatientCollection = async (patientId, collection) =>
 
 export const generateAiTask = async (path, payload) => (await api.post(path, payload)).data;
 
+export const generateDailySummary = async (patientId, payload = {}) =>
+  generateAiTask("/ai/daily-summary", { patientId, ...payload });
+
+export const generateCaregiverRecommendations = async (patientId, payload = {}) =>
+  generateAiTask("/ai/recommendations", { patientId, ...payload });
+
+export const generateClinicalObservations = async (patientId, payload = {}) =>
+  generateAiTask("/ai/clinical-observations", { patientId, ...payload });
+
+export const generateConfusionSupport = async (patientId, phrase, payload = {}) =>
+  generateAiTask("/ai/confusion-support", { patientId, ...payload, context: { ...(payload.context || {}), question: phrase } });
+
+export const generateMemoryRecall = async (patientId, query, payload = {}) =>
+  generateAiTask("/ai/memory-recall", { patientId, ...payload, context: { ...(payload.context || {}), question: query } });
+
+export const generateWeeklyReport = async (patientId, payload = {}) =>
+  generateAiTask("/ai/report", { patientId, ...payload, period: "weekly" });
+
+export const generateMonthlyReport = async (patientId, payload = {}) =>
+  generateAiTask("/ai/report", { patientId, ...payload, period: "monthly" });
+
+export const generateBrainStateSummary = async (patientId, payload = {}) =>
+  generateAiTask("/ai/brain-state-summary", { patientId, ...payload });
+
+export const generateBrainCoreInterpretation = async (patientId, payload = {}) =>
+  generateAiTask("/ai/brain-core-interpretation", { patientId, ...payload });
+
 export const updateMedication = async (medicationId, payload) =>
   (await api.patch(`/medications/${medicationId}`, payload)).data;
 
