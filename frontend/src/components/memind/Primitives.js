@@ -9,15 +9,26 @@ import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import { useI18n } from "../../lib/i18n";
 
-const stateColorMap = {
-  Stable: "#3ddc97",
-  Stabil: "#3ddc97",
-  "Slightly unstable": "#ffb020",
-  "Leicht instabil": "#ffb020",
-  "Under observation": "#00d4ff",
-  Beobachtung: "#00d4ff",
-  "High confusion": "#ff4d4d",
-  Recovering: "#7bdcff",
+const brainStateConfigs = {
+  stable: { key: "stable", color: "#1ee7ff", secondary: "#7c6bff", rgb: "30, 231, 255" },
+  observation: { key: "observation", color: "#8c78ff", secondary: "#ffd166", rgb: "140, 120, 255" },
+  warning: { key: "warning", color: "#ff8a3d", secondary: "#ff4d6d", rgb: "255, 138, 61" },
+  recovering: { key: "recovering", color: "#3ddc97", secondary: "#60a5fa", rgb: "61, 220, 151" },
+  calm: { key: "calm", color: "#7bdcff", secondary: "#b49cff", rgb: "123, 220, 255" },
+};
+
+const getBrainStateConfig = (state = "") => {
+  const normalized = String(state).toLowerCase();
+  if (normalized.includes("high") || normalized.includes("erhöht") || normalized.includes("confusion") || normalized.includes("verwirrung")) {
+    return brainStateConfigs.warning;
+  }
+  if (normalized.includes("recover") || normalized.includes("erholt")) return brainStateConfigs.recovering;
+  if (normalized.includes("observation") || normalized.includes("beobachtung") || normalized.includes("reduced") || normalized.includes("reduziert")) {
+    return brainStateConfigs.observation;
+  }
+  if (normalized.includes("unstable") || normalized.includes("instabil")) return brainStateConfigs.observation;
+  if (normalized.includes("calm") || normalized.includes("ruhig") || normalized.includes("responsive") || normalized.includes("reagiert")) return brainStateConfigs.calm;
+  return brainStateConfigs.stable;
 };
 
 const brainNodes = [
@@ -31,10 +42,20 @@ const brainNodes = [
   { top: "74%", left: "62%", delay: "1.1s" },
 ];
 
-export const GlassPanel = ({ children, className = "", dataTestid, variant = "default" }) => (
+const brainParticles = [
+  { top: "18%", left: "22%", delay: "0.1s" },
+  { top: "26%", left: "78%", delay: "0.8s" },
+  { top: "42%", left: "16%", delay: "1.4s" },
+  { top: "55%", left: "84%", delay: "0.4s" },
+  { top: "72%", left: "30%", delay: "1.9s" },
+  { top: "76%", left: "68%", delay: "1.1s" },
+];
+
+export const GlassPanel = ({ children, className = "", dataTestid, variant = "default", style }) => (
   <motion.div
     className={`rounded-[28px] border border-white/10 bg-white/[0.06] p-5 shadow-[var(--mm-shadow-elev)] backdrop-blur-xl ${variant === "strong" ? "bg-white/[0.09]" : ""} ${variant === "glow" ? "shadow-[var(--mm-shadow-glow)] border-cyan-300/22" : ""} ${variant === "warm" ? "memind-warm-surface shadow-[var(--mm-glow-warm)]" : ""} ${className}`}
     data-testid={dataTestid}
+    style={style}
     initial={{ opacity: 0, y: 10 }}
     animate={{ opacity: 1, y: 0 }}
     transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
@@ -76,61 +97,131 @@ export const RiskCard = ({ icon: Icon, label, value, sublabel, tone = "cyan", da
   );
 };
 
-export const PatientWarmOrb = ({ label, helper, dataTestid }) => (
-  <div className="patient-orb" data-testid={dataTestid}>
-    <div className="patient-orb-core">
-      <div className="space-y-3 px-6 text-center">
-        <p className="font-display text-2xl leading-snug text-white">{label}</p>
-        <p className="text-sm leading-6 text-white/62">{helper}</p>
+export const PatientWarmOrb = ({ label, helper, dataTestid, to, onClick, className = "" }) => {
+  const content = (
+    <>
+      <div className="patient-orb-core" aria-hidden="true">
+        <span className="patient-orb-wave patient-orb-wave-a" />
+        <span className="patient-orb-wave patient-orb-wave-b" />
+        <span className="patient-orb-wave patient-orb-wave-c" />
+        <div className="space-y-3 px-6 text-center">
+          <p className="font-display text-2xl leading-snug text-white">{label}</p>
+          {helper ? <p className="text-sm leading-6 text-white/70">{helper}</p> : null}
+        </div>
       </div>
-    </div>
-  </div>
-);
+      <span className="patient-orb-ring patient-orb-ring-a" aria-hidden="true" />
+      <span className="patient-orb-ring patient-orb-ring-b" aria-hidden="true" />
+    </>
+  );
 
-export const BrainCorePanel = ({ title, state, metrics = [], variant = "caregiver", dataTestid }) => {
-  const stateColor = stateColorMap[state] || "#00d4ff";
+  if (to) {
+    return (
+      <Link className={`patient-orb patient-orb-button ${className}`} data-testid={dataTestid} to={to}>
+        {content}
+      </Link>
+    );
+  }
+
+  if (onClick) {
+    return (
+      <button className={`patient-orb patient-orb-button ${className}`} data-testid={dataTestid} onClick={onClick} type="button">
+        {content}
+      </button>
+    );
+  }
+
   return (
-    <GlassPanel className="brain-core-shell brain-core-grid overflow-hidden p-5" dataTestid={dataTestid} variant="glow">
-      <div className="grid gap-5 xl:grid-cols-[1fr_220px]">
+    <div className={`patient-orb ${className}`} data-testid={dataTestid}>
+      {content}
+    </div>
+  );
+};
+
+export const BrainCore = ({ state, mode = "family", size = "large", dataTestid }) => {
+  const stateConfig = getBrainStateConfig(state);
+  return (
+    <div
+      className={`brain-core-visual brain-core-visual-${size} brain-core-mode-${mode} brain-core-state-${stateConfig.key}`}
+      data-testid={dataTestid}
+      style={{
+        "--brain-state-color": stateConfig.color,
+        "--brain-state-secondary": stateConfig.secondary,
+        "--brain-state-rgb": stateConfig.rgb,
+      }}
+    >
+      <div className="brain-core-scanner" aria-hidden="true" />
+      <div className="brain-core-lens" aria-hidden="true" />
+      <svg className="brain-core-svg" preserveAspectRatio="xMidYMid meet" viewBox="0 0 720 420" aria-hidden="true">
+        <path
+          className="brain-core-brain-fill"
+          d="M228 236C186 225 148 194 145 146C142 94 184 58 241 67C269 28 324 17 374 32C422 18 470 32 497 65C560 63 606 112 603 169C600 219 559 259 512 266C497 300 461 330 412 334C376 363 324 362 286 334C247 330 223 291 228 236Z"
+        />
+        <path className="brain-core-brain-stroke" d="M228 236C186 225 148 194 145 146C142 94 184 58 241 67C269 28 324 17 374 32C422 18 470 32 497 65C560 63 606 112 603 169C600 219 559 259 512 266C497 300 461 330 412 334C376 363 324 362 286 334C247 330 223 291 228 236Z" />
+        <path className="brain-core-fold" d="M302 82C267 106 253 143 257 177C261 204 252 230 235 253" />
+        <path className="brain-core-fold brain-core-fold-violet" d="M376 38C389 80 391 119 386 155C382 190 392 229 421 272" />
+        <path className="brain-core-fold" d="M232 158C280 151 318 134 359 108C406 79 449 69 494 84" />
+        <path className="brain-core-fold brain-core-fold-violet" d="M228 236C279 223 313 205 356 181C405 154 457 145 509 158" />
+        <path className="brain-core-fold" d="M278 294C312 265 350 252 391 237C441 219 482 220 522 237" />
+        <path className="brain-core-route brain-core-route-a" d="M302 124L338 158L384 128L422 178L474 120" />
+        <path className="brain-core-route brain-core-route-b" d="M260 202L318 220L365 182L424 238L482 210" />
+        <path className="brain-core-route brain-core-route-c" d="M307 281L347 257L388 276L433 252" />
+        <path className="brain-core-signal brain-core-signal-a" d="M126 171C195 166 237 153 302 124" />
+        <path className="brain-core-signal brain-core-signal-b" d="M474 120C538 96 590 89 676 100" />
+        <path className="brain-core-signal brain-core-signal-c" d="M482 210C548 220 603 245 676 288" />
+        {[
+          [302, 124],
+          [338, 158],
+          [384, 128],
+          [422, 178],
+          [474, 120],
+          [318, 220],
+          [365, 182],
+          [424, 238],
+          [482, 210],
+          [347, 257],
+          [388, 276],
+          [433, 252],
+        ].map(([cx, cy], index) => (
+          <circle className="brain-core-svg-node" cx={cx} cy={cy} key={`${cx}-${cy}`} r={index > 8 ? 6 : 8} />
+        ))}
+      </svg>
+      {brainNodes.map((node, index) => (
+        <span className="brain-core-node" key={`node-${index}`} style={{ top: node.top, left: node.left, animationDelay: node.delay }} />
+      ))}
+      {brainParticles.map((particle, index) => (
+        <span className="brain-core-particle" key={`particle-${index}`} style={{ top: particle.top, left: particle.left, animationDelay: particle.delay }} />
+      ))}
+    </div>
+  );
+};
+
+export const BrainCorePanel = ({ title, subtitle, state, metrics = [], variant = "caregiver", size = "large", labels = {}, dataTestid }) => {
+  const stateConfig = getBrainStateConfig(state);
+  const mode = variant === "doctor" ? "clinical" : variant;
+  return (
+    <GlassPanel
+      className={`brain-core-shell brain-core-grid overflow-hidden p-5 brain-core-panel-${variant}`}
+      dataTestid={dataTestid}
+      variant="glow"
+      style={{
+        "--brain-state-color": stateConfig.color,
+        "--brain-state-secondary": stateConfig.secondary,
+        "--brain-state-rgb": stateConfig.rgb,
+      }}
+    >
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_240px]">
         <div className="space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <p className="font-display text-sm uppercase tracking-[0.26em] text-cyan-100/56">{title}</p>
-              <p className="mt-2 text-sm text-white/58">Central intelligence status with electric neural pulses.</p>
+              {subtitle ? <p className="mt-2 text-sm text-white/58">{subtitle}</p> : null}
             </div>
-            <Badge className="rounded-full border px-3 py-1 text-white" style={{ background: `${stateColor}14`, borderColor: `${stateColor}40`, color: stateColor }}>{state}</Badge>
+            <Badge className="rounded-full border px-3 py-1 text-white" style={{ background: `rgba(${stateConfig.rgb}, 0.12)`, borderColor: `rgba(${stateConfig.rgb}, 0.36)`, color: stateConfig.color }}>{state}</Badge>
           </div>
-          <div className="brain-core-visual flex items-center justify-center">
-            <svg className="absolute inset-0 h-full w-full" preserveAspectRatio="xMidYMid meet" viewBox="0 0 640 360">
-              <path d="M214 205C180 198 148 173 145 134C142 92 176 61 223 68C245 37 289 26 330 38C369 27 410 38 432 64C484 62 522 102 520 149C518 191 484 224 446 230C434 258 404 283 364 286C334 310 292 310 260 286C229 283 210 252 214 205Z" fill="rgba(20,28,54,0.48)" stroke="rgba(118,152,255,0.42)" strokeWidth="2.2" />
-              <path d="M285 86C255 106 244 138 248 166C251 188 246 211 232 230" stroke="rgba(0,212,255,0.38)" strokeLinecap="round" strokeWidth="2.2" />
-              <path d="M336 44C348 78 350 110 346 140C343 167 350 202 372 238" stroke="rgba(140,120,255,0.42)" strokeLinecap="round" strokeWidth="2.2" />
-              <path d="M222 150C262 144 292 130 327 108C365 84 398 72 434 83" stroke="rgba(0,212,255,0.46)" strokeLinecap="round" strokeWidth="2" />
-              <path d="M216 205C258 196 284 182 320 162C360 141 404 131 442 141" stroke="rgba(128,144,255,0.46)" strokeLinecap="round" strokeWidth="2" />
-              <path d="M252 250C280 225 312 214 346 202C388 187 421 187 454 201" stroke="rgba(196,112,255,0.34)" strokeLinecap="round" strokeWidth="2" />
-              <path d="M286 118L316 148L356 120L388 162L430 112" stroke="rgba(140,120,255,0.5)" strokeLinecap="round" strokeWidth="2.4" />
-              <path d="M250 183L300 198L340 164L392 210L436 186" stroke="rgba(0,212,255,0.54)" strokeLinecap="round" strokeWidth="2.4" />
-              <path d="M288 240L320 220L352 236L390 214" stroke="rgba(0,212,255,0.34)" strokeLinecap="round" strokeWidth="2" />
-              <circle cx="286" cy="118" r="8" fill="rgba(196,112,255,0.9)" />
-              <circle cx="316" cy="148" r="8" fill="rgba(124,152,255,0.95)" />
-              <circle cx="356" cy="120" r="8" fill="rgba(0,212,255,0.95)" />
-              <circle cx="388" cy="162" r="8" fill="rgba(196,112,255,0.95)" />
-              <circle cx="430" cy="112" r="8" fill="rgba(124,152,255,0.95)" />
-              <circle cx="300" cy="198" r="8" fill="rgba(124,152,255,0.95)" />
-              <circle cx="340" cy="164" r="8" fill="rgba(196,112,255,0.95)" />
-              <circle cx="392" cy="210" r="8" fill="rgba(0,212,255,0.95)" />
-              <circle cx="436" cy="186" r="8" fill="rgba(124,152,255,0.9)" />
-              <circle cx="320" cy="220" r="7" fill="rgba(124,152,255,0.92)" />
-              <circle cx="352" cy="236" r="7" fill="rgba(196,112,255,0.92)" />
-              <circle cx="390" cy="214" r="7" fill="rgba(0,212,255,0.92)" />
-            </svg>
-            {brainNodes.map((node, index) => (
-              <span className="brain-core-node" key={`node-${index}`} style={{ top: node.top, left: node.left, animationDelay: node.delay }} />
-            ))}
-          </div>
+          <BrainCore dataTestid={`${dataTestid || "brain-core-panel"}-visual`} mode={mode} size={size} state={state} />
         </div>
         <div className="space-y-3 rounded-[24px] border border-white/10 bg-[rgba(8,12,24,0.65)] p-4">
-          <p className="text-[11px] uppercase tracking-[0.24em] text-white/42">{variant === "doctor" ? "Clinical Brain Status" : "Memind Brain Core"}</p>
+          <p className="text-[11px] uppercase tracking-[0.24em] text-white/42">{labels.metricsTitle || title}</p>
           <div className="space-y-3">
             {metrics.map((item) => (
               <div className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2" key={item.label}>
@@ -140,7 +231,7 @@ export const BrainCorePanel = ({ title, state, metrics = [], variant = "caregive
             ))}
           </div>
           <div className="pt-2">
-            <p className="text-[11px] uppercase tracking-[0.22em] text-white/38">Neural activity</p>
+            <p className="text-[11px] uppercase tracking-[0.22em] text-white/38">{labels.rhythmLabel}</p>
             <div className="brain-core-sparkline mt-3 rounded-2xl" />
           </div>
         </div>
@@ -148,6 +239,21 @@ export const BrainCorePanel = ({ title, state, metrics = [], variant = "caregive
     </GlassPanel>
   );
 };
+
+export const MemoryGraphNetwork = ({ centerLabel, nodes = [], dataTestid }) => (
+  <div className="memind-memory-network" data-testid={dataTestid}>
+    <div className="memind-memory-network-lines" aria-hidden="true" />
+    <div className="memind-memory-node memind-memory-node-center">
+      <span>{centerLabel}</span>
+    </div>
+    {nodes.map((node, index) => (
+      <div className={`memind-memory-node memind-memory-node-${index + 1}`} key={`${node.label}-${index}`}>
+        <span>{node.label}</span>
+        {node.detail ? <small>{node.detail}</small> : null}
+      </div>
+    ))}
+  </div>
+);
 
 export const AiStatusRing = ({ label, score, subScores = [], status = "stable", dataTestid }) => (
   <GlassPanel className="overflow-hidden p-5" dataTestid={dataTestid} variant="strong">
@@ -214,8 +320,8 @@ export const EthicsConsentBanner = ({ compact = false, dataTestid = "ethics-cons
   );
 };
 
-export const PatientBottomNav = ({ items }) => (
-  <div className="sticky bottom-4 z-20 mt-6 rounded-[26px] border border-white/10 bg-[rgba(7,10,18,0.92)] p-2 shadow-[var(--mm-shadow-elev)] backdrop-blur-xl">
+export const PatientBottomNav = ({ items, sticky = true }) => (
+  <div className={`${sticky ? "sticky bottom-4 z-20" : ""} mt-6 rounded-[26px] border border-white/10 bg-[rgba(7,10,18,0.92)] p-2 shadow-[var(--mm-shadow-elev)] backdrop-blur-xl`}>
     <div className="grid grid-cols-4 gap-2">
       {items.map((item) => (
         <Link
